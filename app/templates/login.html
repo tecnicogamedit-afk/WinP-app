@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WinP — Accesso</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stile.css') }}">
+</head>
+
+<body class="pagina-login">
+
+    <div class="login-contenitore">
+
+        <div class="login-intestazione">
+            <h1 class="login-titolo">WinP</h1>
+            <p class="login-sottotitolo">Sistema di gestione commesse</p>
+        </div>
+
+        {% if errore %}
+        <div class="login-errore">
+            {{ errore }}
+        </div>
+        {% endif %}
+
+        <form class="login-form" action="" method="POST">
+
+            <div class="campo-gruppo">
+                <label class="campo-etichetta" for="reparto">Reparto</label>
+                <select class="campo-select" id="reparto" name="reparto" required>
+                    <option value="">— Seleziona —</option>
+                    <option value="Commerciale">Commerciale</option>
+                    <option value="Tecnico">Tecnico</option>
+                    <option value="Grafica">Grafica</option>
+                    <option value="Produzione">Produzione</option>
+                    <option value="Logistica">Logistica</option>
+                    <option value="Amministratore">Amministratore</option>
+                </select>
+            </div>
+
+            <div class="campo-gruppo">
+                <label class="campo-etichetta" for="utente_id">Nome</label>
+                <select class="campo-select" id="utente_id" name="utente_id" required>
+                    <option value="">— Seleziona reparto prima —</option>
+                    {% for utente in utenti %}
+                    <option value="{{ utente.id }}"
+                            data-reparto="{{ utente.reparto }}">
+                        {{ utente.nome }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="campo-gruppo">
+                <label class="campo-etichetta" for="password">
+                    Password amministratore
+                    <span class="campo-opzionale">(opzionale)</span>
+                </label>
+                <input class="campo-input"
+                       type="password"
+                       id="password"
+                       name="password"
+                       placeholder="Solo per accesso admin">
+            </div>
+
+            <button class="btn-accedi" type="submit">Accedi</button>
+
+        </form>
+
+    </div>
+
+    <script>
+    const selectReparto = document.getElementById('reparto');
+    const selectUtente  = document.getElementById('utente_id');
+    const tutteOpzioni  = Array.from(selectUtente.options);
+
+    selectReparto.addEventListener('change', function() {
+        const repartoScelto = this.value;
+        selectUtente.innerHTML = '';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = repartoScelto
+            ? '— Seleziona nome —'
+            : '— Seleziona reparto prima —';
+        selectUtente.appendChild(placeholder);
+
+        tutteOpzioni.forEach(function(opzione) {
+            if (opzione.value === '') return;
+            const repartoUtente = opzione.getAttribute('data-reparto');
+            if (!repartoScelto || repartoUtente === repartoScelto) {
+                selectUtente.appendChild(opzione.cloneNode(true));
+            }
+        });
+
+        if (selectUtente.options.length === 2) {
+            selectUtente.selectedIndex = 1;
+        }
+    });
+
+    selectUtente.addEventListener('change', function() {
+        const opzioneScelta = this.options[this.selectedIndex];
+        if (!opzioneScelta || opzioneScelta.value === '') return;
+        const repartoUtente = opzioneScelta.getAttribute('data-reparto');
+        if (repartoUtente) {
+            selectReparto.value = repartoUtente;
+        }
+    });
+    </script>
+
+</body>
+</html>

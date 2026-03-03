@@ -1,0 +1,128 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --colore-sfondo:     #0f1117;
+    --colore-superficie: #1a1d2e;
+    --colore-bordo:      #2a2d3e;
+    --testo-primario:    #e8eaf0;
+    --testo-secondario:  #8890a4;
+    --accent-blu:        #2e5f8a;
+    --accent-verde:      #2e8a56;
+    --accent-rosso:      #8a2e2e;
+    --raggio-bordo:      8px;
+    --ombra:             0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.pagina-login {
+    background-color: var(--colore-sfondo);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.login-contenitore {
+    background-color: var(--colore-superficie);
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
+    box-shadow: var(--ombra);
+    padding: 48px;
+    width: 100%;
+    max-width: 440px;
+}
+
+.login-intestazione {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.login-titolo {
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--testo-primario);
+    letter-spacing: 4px;
+}
+
+.login-sottotitolo {
+    color: var(--testo-secondario);
+    font-size: 14px;
+    margin-top: 6px;
+}
+
+.login-errore {
+    background-color: rgba(138, 46, 46, 0.2);
+    border: 1px solid var(--accent-rosso);
+    border-radius: var(--raggio-bordo);
+    color: #e88080;
+    font-size: 14px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+}
+
+.campo-gruppo {
+    margin-bottom: 20px;
+}
+
+.campo-etichetta {
+    display: block;
+    color: var(--testo-secondario);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.campo-opzionale {
+    color: var(--testo-secondario);
+    font-weight: 400;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.campo-input,
+.campo-select {
+    width: 100%;
+    background-color: var(--colore-sfondo);
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
+    color: var(--testo-primario);
+    font-size: 14px;
+    padding: 10px 14px;
+    transition: border-color 0.2s;
+}
+
+.campo-input:focus,
+.campo-select:focus {
+    outline: none;
+    border-color: var(--accent-blu);
+}
+
+.campo-select option {
+    background-color: var(--colore-superficie);
+}
+
+.btn-accedi {
+    width: 100%;
+    background-color: var(--accent-blu);
+    border: none;
+    border-radius: var(--raggio-bordo);
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 8px;
+    padding: 12px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-accedi:hover {
+    background-color: #3a72a8;
+}
+
+.btn-accedi:active {
+    transform: scale(0.98);
+}
