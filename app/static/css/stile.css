@@ -518,3 +518,16 @@
 a:visited {
     color: inherit;
 }
+
+/* ── Semaforo ── */
+.semaforo {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.semaforo-verde  { background-color: #50c080; }
+.semaforo-giallo { background-color: #e0c050; }
+.semaforo-rosso  { background-color: #e05050; }
+

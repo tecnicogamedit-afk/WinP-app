@@ -67,11 +67,7 @@
 
                 <!-- Semaforo -->
                 <td class="col-stato">
-                    <span class="semaforo semaforo-{{ commessa.stato_globale | lower }}">
-                        {{ '🔴' if commessa.stato_globale == 'ROSSO'
-                           else '🟡' if commessa.stato_globale == 'GIALLO'
-                           else '🟢' }}
-                    </span>
+                    <span class="semaforo semaforo-{{ commessa.stato_globale | lower }}"></span>
                 </td>
 
                 <!-- ID commessa -->
