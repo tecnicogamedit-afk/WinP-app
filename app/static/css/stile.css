@@ -126,3 +126,277 @@
 .btn-accedi:active {
     transform: scale(0.98);
 }
+
+/* ════════════════════════════════════════════════════════════
+   LAYOUT APPLICAZIONE
+   ════════════════════════════════════════════════════════════ */
+
+   .pagina-app {
+    background-color: var(--colore-sfondo);
+    min-height: 100vh;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--testo-primario);
+}
+
+/* ── Navbar ── */
+.navbar {
+    background-color: var(--colore-superficie);
+    border-bottom: 1px solid var(--colore-bordo);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar-logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--testo-primario);
+    letter-spacing: 2px;
+}
+
+.navbar-centro {
+    display: flex;
+    gap: 4px;
+}
+
+.navbar-link {
+    color: var(--testo-secondario);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: var(--raggio-bordo);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.navbar-link:hover,
+.navbar-link.attivo {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: var(--testo-primario);
+}
+
+.navbar-destra {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.navbar-utente {
+    font-size: 13px;
+    color: var(--testo-primario);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.3;
+}
+
+.navbar-reparto {
+    font-size: 11px;
+    color: var(--testo-secondario);
+}
+
+.navbar-esci {
+    color: var(--testo-secondario);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 12px;
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
+    transition: all 0.2s;
+}
+
+.navbar-esci:hover {
+    border-color: var(--accent-rosso);
+    color: #e88080;
+}
+
+/* ── Contenuto principale ── */
+.contenuto-principale {
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ── Contatori semaforo ── */
+.contatori {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.contatore {
+    background-color: var(--colore-superficie);
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
+    padding: 16px 24px;
+    text-align: center;
+    flex: 1;
+}
+
+.contatore.rosso  { border-left: 3px solid #e05050; }
+.contatore.giallo { border-left: 3px solid #e0c050; }
+.contatore.verde  { border-left: 3px solid #50c080; }
+.contatore.totale { border-left: 3px solid var(--accent-blu); }
+
+.contatore-numero {
+    display: block;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--testo-primario);
+}
+
+.contatore-etichetta {
+    font-size: 12px;
+    color: var(--testo-secondario);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ── Tabella ── */
+.tabella-contenitore {
+    background-color: var(--colore-superficie);
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
+}
+
+.tabella-intestazione {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--colore-bordo);
+}
+
+.tabella-titolo {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--testo-primario);
+}
+
+.btn-nuovo {
+    background-color: var(--accent-blu);
+    border-radius: var(--raggio-bordo);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 14px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.btn-nuovo:hover {
+    background-color: #3a72a8;
+}
+
+.tabella {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.tabella thead th {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--colore-bordo);
+    color: var(--testo-secondario);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 10px 16px;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.tabella tbody tr {
+    border-bottom: 1px solid var(--colore-bordo);
+    transition: background-color 0.15s;
+}
+
+.tabella tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.tabella tbody td {
+    padding: 12px 16px;
+    color: var(--testo-primario);
+    vertical-align: middle;
+}
+
+.riga-rosso  { border-left: 2px solid #e05050; }
+.riga-giallo { border-left: 2px solid #e0c050; }
+.riga-verde  { border-left: 2px solid transparent; }
+
+.id-commessa {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--testo-secondario);
+}
+
+.testo-troncato {
+    display: block;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.testo-vuoto {
+    color: var(--testo-secondario);
+    opacity: 0.5;
+}
+
+.data-scaduta {
+    color: #e05050;
+    font-weight: 600;
+}
+
+.badge {
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    text-transform: uppercase;
+}
+
+.badge-urgente {
+    background-color: rgba(224, 80, 80, 0.2);
+    color: #e08080;
+}
+
+.badge-asap {
+    background-color: rgba(224, 192, 80, 0.2);
+    color: #e0c080;
+}
+
+.badge-appena-possibile {
+    background-color: rgba(80, 192, 128, 0.2);
+    color: #80c0a0;
+}
+
+.stato-badge {
+    font-size: 12px;
+    color: var(--testo-secondario);
+}
+
+.btn-dettaglio {
+    color: var(--accent-blu);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-dettaglio:hover {
+    text-decoration: underline;
+}
+
+.tabella-vuota {
+    padding: 48px;
+    text-align: center;
+    color: var(--testo-secondario);
+    font-size: 14px;
+    line-height: 2;
+}
+

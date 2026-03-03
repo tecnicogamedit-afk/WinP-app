@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titolo %}WinP{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stile.css') }}">
+</head>
+
+<body class="pagina-app">
+
+    <!-- ── Barra di navigazione in alto ── -->
+    <nav class="navbar">
+
+        <div class="navbar-sinistra">
+            <span class="navbar-logo">WinP</span>
+        </div>
+
+        <div class="navbar-centro">
+            <!-- Links di navigazione — visibili in base al reparto -->
+            <a href="{{ url_for('main.dashboard') }}"
+               class="navbar-link {% if request.endpoint == 'main.dashboard' %}attivo{% endif %}">
+                Dashboard
+            </a>
+
+            {% if session.get('reparto') in ['Commerciale', 'Amministratore'] %}
+            <a href="#" class="navbar-link">Commerciale</a>
+            {% endif %}
+
+            {% if session.get('reparto') in ['Tecnico', 'Amministratore'] %}
+            <a href="#" class="navbar-link">Tecnico</a>
+            {% endif %}
+
+            {% if session.get('reparto') in ['Grafica', 'Amministratore'] %}
+            <a href="#" class="navbar-link">Grafica</a>
+            {% endif %}
+
+            {% if session.get('reparto') in ['Produzione', 'Amministratore'] %}
+            <a href="#" class="navbar-link">Produzione</a>
+            {% endif %}
+
+            {% if session.get('reparto') in ['Logistica', 'Amministratore'] %}
+            <a href="#" class="navbar-link">Logistica</a>
+            {% endif %}
+
+            {% if session.get('is_admin') %}
+            <a href="#" class="navbar-link">Admin</a>
+            {% endif %}
+        </div>
+
+        <div class="navbar-destra">
+            <span class="navbar-utente">
+                {{ session.get('utente_nome', '') }}
+                <span class="navbar-reparto">{{ session.get('reparto', '') }}</span>
+            </span>
+            <a href="{{ url_for('main.logout') }}" class="navbar-esci">Esci</a>
+        </div>
+
+    </nav>
+
+    <!-- ── Contenuto della pagina ── -->
+    <!-- Ogni pagina che estende base.html
+         inserisce il suo contenuto qui dentro -->
+    <main class="contenuto-principale">
+        {% block contenuto %}{% endblock %}
+    </main>
+
+</body>
+</html>

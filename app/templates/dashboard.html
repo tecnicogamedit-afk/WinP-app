@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+<!--
+    Questo file "estende" base.html — significa che
+    usa il layout base (navbar, struttura generale)
+    e inserisce il suo contenuto nel blocco "contenuto".
+-->
+
+{% block titolo %}WinP — Dashboard{% endblock %}
+
+{% block contenuto %}
+
+<!-- ── Contatori semaforo ── -->
+<div class="contatori">
+
+    <div class="contatore rosso">
+        <span class="contatore-numero">{{ contatori.rosso }}</span>
+        <span class="contatore-etichetta">Urgenti</span>
+    </div>
+
+    <div class="contatore giallo">
+        <span class="contatore-numero">{{ contatori.giallo }}</span>
+        <span class="contatore-etichetta">Attenzione</span>
+    </div>
+
+    <div class="contatore verde">
+        <span class="contatore-numero">{{ contatori.verde }}</span>
+        <span class="contatore-etichetta">In corso</span>
+    </div>
+
+    <div class="contatore totale">
+        <span class="contatore-numero">{{ contatori.totale }}</span>
+        <span class="contatore-etichetta">Totale</span>
+    </div>
+
+</div>
+
+<!-- ── Tabella commesse ── -->
+<div class="tabella-contenitore">
+
+    <div class="tabella-intestazione">
+        <h2 class="tabella-titolo">Commesse attive</h2>
+        {% if session.get('reparto') in ['Commerciale', 'Amministratore'] %}
+        <a href="#" class="btn-nuovo">+ Nuova richiesta</a>
+        {% endif %}
+    </div>
+
+    {% if commesse %}
+    <table class="tabella">
+        <thead>
+            <tr>
+                <th class="col-stato">Stato</th>
+                <th class="col-id">ID</th>
+                <th class="col-cliente">Cliente</th>
+                <th class="col-descr">Descrizione</th>
+                <th class="col-data">Scadenza</th>
+                <th class="col-priorita">Priorità</th>
+                <th class="col-stato-co">Stato CO</th>
+                {% if session.get('reparto') in ['Tecnico', 'Amministratore'] %}
+                <th class="col-preventivo">Preventivo</th>
+                {% endif %}
+                <th class="col-azioni"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for commessa in commesse %}
+            <tr class="riga-commessa riga-{{ commessa.stato_globale | lower }}">
+
+                <!-- Semaforo -->
+                <td class="col-stato">
+                    <span class="semaforo semaforo-{{ commessa.stato_globale | lower }}">
+                        {{ '🔴' if commessa.stato_globale == 'ROSSO'
+                           else '🟡' if commessa.stato_globale == 'GIALLO'
+                           else '🟢' }}
+                    </span>
+                </td>
+
+                <!-- ID commessa -->
+                <td class="col-id">
+                    <span class="id-commessa">{{ commessa.id_commessa }}</span>
+                </td>
+
+                <!-- Cliente -->
+                <td class="col-cliente">{{ commessa.cliente or '—' }}</td>
+
+                <!-- Descrizione -->
+                <td class="col-descr">
+                    <span class="testo-troncato">
+                        {{ commessa.descrizione or '—' }}
+                    </span>
+                </td>
+
+                <!-- Data scadenza -->
+                <td class="col-data">
+                    {% if commessa.data_tassativa %}
+                        <span class="data {% if commessa.stato_globale == 'ROSSO' %}data-scaduta{% endif %}">
+                            {{ commessa.data_tassativa.strftime('%d/%m/%y') }}
+                        </span>
+                    {% else %}
+                        <span class="testo-vuoto">—</span>
+                    {% endif %}
+                </td>
+
+                <!-- Priorità -->
+                <td class="col-priorita">
+                    {% if commessa.priorita %}
+                        <span class="badge badge-{{ commessa.priorita | lower | replace(' ', '-') }}">
+                            {{ commessa.priorita }}
+                        </span>
+                    {% else %}
+                        <span class="testo-vuoto">—</span>
+                    {% endif %}
+                </td>
+
+                <!-- Stato Commerciale -->
+                <td class="col-stato-co">
+                    <span class="stato-badge">{{ commessa.stato_co or '—' }}</span>
+                </td>
+
+                <!-- Preventivo (solo Tecnico e Admin) -->
+                {% if session.get('reparto') in ['Tecnico', 'Amministratore'] %}
+                <td class="col-preventivo">
+                    {{ commessa.num_preventivo or '—' }}
+                </td>
+                {% endif %}
+
+                <!-- Pulsante dettaglio -->
+                <td class="col-azioni">
+                    <a href="#" class="btn-dettaglio">Apri</a>
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+    <!-- Messaggio quando non ci sono commesse -->
+    <div class="tabella-vuota">
+        <p>Nessuna commessa attiva.</p>
+        {% if session.get('reparto') in ['Commerciale', 'Amministratore'] %}
+        <p>Clicca <strong>+ Nuova richiesta</strong> per iniziare.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}
