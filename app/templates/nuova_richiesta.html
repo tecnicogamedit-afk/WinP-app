@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block titolo %}WinP — Nuova richiesta{% endblock %}
+
+{% block contenuto %}
+
+<div class="form-contenitore">
+
+    <!-- ── Intestazione ── -->
+    <div class="form-intestazione">
+        <div>
+            <h1 class="form-titolo">Nuova richiesta di quotazione</h1>
+            <p class="form-sottotitolo">
+                Compila i campi e salva — il Tecnico riceverà la richiesta
+            </p>
+        </div>
+        <a href="{{ url_for('main.dashboard') }}" class="btn-annulla">
+            Annulla
+        </a>
+    </div>
+
+    <!-- ── Messaggi di errore ── -->
+    {% if errore %}
+    <div class="form-errore">
+        {{ errore }}
+    </div>
+    {% endif %}
+
+    <!-- ── Form ── -->
+    <form action="" method="POST">
+
+        <!-- Cliente -->
+        <div class="campo-gruppo">
+            <label class="campo-etichetta" for="cliente">
+                Cliente <span class="campo-obbligatorio">*</span>
+            </label>
+            <input class="campo-input"
+                   type="text"
+                   id="cliente"
+                   name="cliente"
+                   placeholder="Nome cliente o azienda"
+                   value="{{ form.cliente if form else '' }}"
+                   required>
+        </div>
+
+        <!-- Descrizione lavoro -->
+        <div class="campo-gruppo">
+            <label class="campo-etichetta" for="descrizione">
+                Descrizione lavoro <span class="campo-obbligatorio">*</span>
+            </label>
+            <textarea class="campo-textarea"
+                      id="descrizione"
+                      name="descrizione"
+                      rows="3"
+                      placeholder="Descrivi brevemente il lavoro richiesto"
+                      required>{{ form.descrizione if form else '' }}</textarea>
+        </div>
+
+        <!-- Data consegna richiesta e Priorità — sulla stessa riga -->
+        <div class="campo-riga">
+
+            <div class="campo-gruppo">
+                <label class="campo-etichetta" for="data_consegna">
+                    Data consegna richiesta
+                    <span class="campo-opzionale">(opzionale)</span>
+                </label>
+                <input class="campo-input"
+                       type="date"
+                       id="data_consegna"
+                       name="data_consegna"
+                       value="{{ form.data_consegna if form else '' }}">
+            </div>
+
+            <div class="campo-gruppo">
+                <label class="campo-etichetta" for="priorita">
+                    Priorità quotazione
+                    <span class="campo-opzionale">(opzionale)</span>
+                </label>
+                <select class="campo-select"
+                        id="priorita"
+                        name="priorita">
+                    <option value="">— Nessuna —</option>
+                    <option value="Urgente"
+                        {{ 'selected' if form and form.priorita == 'Urgente' }}>
+                        Urgente
+                    </option>
+                    <option value="ASAP"
+                        {{ 'selected' if form and form.priorita == 'ASAP' }}>
+                        ASAP
+                    </option>
+                    <option value="Appena possibile"
+                        {{ 'selected' if form and form.priorita == 'Appena possibile' }}>
+                        Appena possibile
+                    </option>
+                </select>
+            </div>
+
+        </div>
+
+        <!-- Note commerciale -->
+        <div class="campo-gruppo">
+            <label class="campo-etichetta" for="note_co">
+                Note commerciale
+                <span class="campo-opzionale">(opzionale)</span>
+            </label>
+            <textarea class="campo-textarea"
+                      id="note_co"
+                      name="note_co"
+                      rows="2"
+                      placeholder="Note interne per il reparto Tecnico">{{ form.note_co if form else '' }}</textarea>
+        </div>
+
+        <!-- Pulsanti -->
+        <div class="form-pulsanti">
+            <a href="{{ url_for('main.dashboard') }}" class="btn-annulla">
+                Annulla
+            </a>
+            <button type="submit" class="btn-salva">
+                Salva richiesta
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

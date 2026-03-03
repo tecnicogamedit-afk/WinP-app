@@ -40,7 +40,7 @@
     <div class="tabella-intestazione">
         <h2 class="tabella-titolo">Commesse attive</h2>
         {% if session.get('reparto') in ['Commerciale', 'Amministratore'] %}
-        <a href="#" class="btn-nuovo">+ Nuova richiesta</a>
+        <a href="{{ url_for('main.nuova_richiesta') }}" class="btn-nuovo">+ Nuova richiesta</a>
         {% endif %}
     </div>
 

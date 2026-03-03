@@ -82,3 +82,81 @@ def dashboard():
     return render_template('dashboard.html',
                            commesse=commesse,
                            contatori=contatori)
+
+# ── Nuova richiesta di quotazione ────────────────────────────
+@main.route('/nuova-richiesta', methods=['GET', 'POST'])
+def nuova_richiesta():
+
+    if 'utente_id' not in session:
+        return redirect(url_for('main.login'))
+
+    # Solo Commerciale e Admin possono inserire richieste
+    if session.get('reparto') not in ['Commerciale', 'Amministratore']:
+        return redirect(url_for('main.dashboard'))
+
+    errore = None
+    form   = None
+
+    if request.method == 'POST':
+        cliente     = request.form.get('cliente', '').strip()
+        descrizione = request.form.get('descrizione', '').strip()
+        data_cons   = request.form.get('data_consegna', '')
+        priorita    = request.form.get('priorita', '')
+        note_co     = request.form.get('note_co', '').strip()
+
+        # Validazione campi obbligatori
+        if not cliente:
+            errore = 'Il campo Cliente è obbligatorio.'
+        elif not descrizione:
+            errore = 'Il campo Descrizione è obbligatorio.'
+        else:
+            from app.models import db
+            from app import db as database
+            from datetime import date
+            import datetime
+
+            # Genera ID commessa nel formato AAMMXXX
+            oggi   = date.today()
+            anno   = oggi.strftime('%y')
+            mese   = oggi.strftime('%m')
+            prefisso = f'{anno}{mese}'
+
+            # Conta le commesse di questo mese per il progressivo
+            from app.models import Commessa
+            count = Commessa.query.filter(
+                Commessa.id_commessa.like(f'{prefisso}%')
+            ).count()
+            progressivo = str(count + 1).zfill(3)
+            id_commessa = f'{prefisso}{progressivo}'
+
+            # Crea la nuova commessa
+            nuova = Commessa(
+                id_commessa    = id_commessa,
+                versione       = 1,
+                stato_record   = 'ATTIVO',
+                stato_globale  = 'VERDE',
+                data_richiesta = oggi,
+                cliente        = cliente,
+                descrizione    = descrizione,
+                priorita       = priorita if priorita else None,
+                note_co        = note_co if note_co else None,
+                stato_co       = 'Da quotare',
+                modificata_da  = session.get('utente_nome')
+            )
+
+            # Data consegna opzionale
+            if data_cons:
+                from datetime import datetime
+                nuova.data_consegna = datetime.strptime(
+                    data_cons, '%Y-%m-%d').date()
+
+            from app import db
+            db.session.add(nuova)
+            db.session.commit()
+
+            return redirect(url_for('main.dashboard'))
+
+        # Se c'è un errore mantieni i valori inseriti
+        form = request.form
+
+    return render_template('nuova_richiesta.html', errore=errore, form=form)
