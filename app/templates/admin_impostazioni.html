@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block titolo %}WinP — Impostazioni{% endblock %}
+
+{% block contenuto %}
+
+<div class="form-contenitore" style="max-width: 600px;">
+
+    <div class="form-intestazione">
+        <div>
+            <h1 class="form-titolo">Impostazioni</h1>
+            <p class="form-sottotitolo">Configurazione generale del sistema</p>
+        </div>
+        <a href="{{ url_for('main.admin_utenti') }}" class="btn-annulla">
+            Torna agli utenti
+        </a>
+    </div>
+
+    {% if errore %}
+    <div class="form-errore">{{ errore }}</div>
+    {% endif %}
+
+    {% if successo %}
+    <div class="form-successo">{{ successo }}</div>
+    {% endif %}
+
+    <form action="" method="POST">
+
+        <h2 class="sezione-titolo">Password di accesso</h2>
+
+        <div class="campo-gruppo">
+            <label class="campo-etichetta" for="password_admin">
+                Password Amministratore
+            </label>
+            <input class="campo-input"
+                   type="text"
+                   id="password_admin"
+                   name="password_admin"
+                   value="{{ pwd_admin }}">
+        </div>
+
+        <div class="campo-gruppo">
+            <label class="campo-etichetta" for="password_avanzato">
+                Password Utente Avanzato
+            </label>
+            <input class="campo-input"
+                   type="text"
+                   id="password_avanzato"
+                   name="password_avanzato"
+                   value="{{ pwd_avanz }}">
+        </div>
+
+        <div class="form-pulsanti">
+            <button type="submit" class="btn-salva">
+                Salva impostazioni
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

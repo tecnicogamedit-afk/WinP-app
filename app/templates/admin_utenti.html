@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block titolo %}WinP — Gestione utenti{% endblock %}
+
+{% block contenuto %}
+
+<div class="pagina-utenti">
+
+    <!-- ── Intestazione ── -->
+    <div class="form-intestazione" style="margin-bottom: 24px;">
+        <div>
+            <h1 class="form-titolo">Gestione utenti</h1>
+            <p class="form-sottotitolo">Aggiungi e gestisci gli utenti del sistema</p>
+        </div>
+        <a href="{{ url_for('main.dashboard') }}" class="btn-annulla">
+            Torna alla dashboard
+        </a>
+    </div>
+
+    <!-- ── Form aggiunta utente ── -->
+    <div class="form-contenitore" style="margin-bottom: 24px;">
+
+        <h2 class="sezione-titolo">Aggiungi utente</h2>
+
+        {% if errore %}
+        <div class="form-errore">{{ errore }}</div>
+        {% endif %}
+
+        {% if successo %}
+        <div class="form-successo">{{ successo }}</div>
+        {% endif %}
+
+        <form action="" method="POST">
+
+            <div class="campo-riga">
+
+                <div class="campo-gruppo">
+                    <label class="campo-etichetta" for="nome">
+                        Nome e cognome <span class="campo-obbligatorio">*</span>
+                    </label>
+                    <input class="campo-input"
+                           type="text"
+                           id="nome"
+                           name="nome"
+                           placeholder="Es. Mario Rossi"
+                           required>
+                </div>
+
+                <div class="campo-gruppo">
+                    <label class="campo-etichetta" for="reparto">
+                        Reparto <span class="campo-obbligatorio">*</span>
+                    </label>
+                    <select class="campo-select" id="reparto" name="reparto" required>
+                        <option value="">— Seleziona —</option>
+                        <option value="Commerciale">Commerciale</option>
+                        <option value="Tecnico">Tecnico</option>
+                        <option value="Grafica">Grafica</option>
+                        <option value="Produzione">Produzione</option>
+                        <option value="Logistica">Logistica</option>
+                        <option value="Amministratore">Amministratore</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="campo-gruppo">
+                <label class="campo-etichetta">
+                    <input type="checkbox" name="is_admin" value="1">
+                    Utente amministratore
+                </label>
+            </div>
+
+            <div class="form-pulsanti">
+                <button type="submit" class="btn-salva">
+                    Aggiungi utente
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- ── Lista utenti esistenti ── -->
+    <div class="form-contenitore">
+
+        <h2 class="sezione-titolo">Utenti configurati</h2>
+
+        {% if utenti %}
+        <table class="tabella" style="margin-top: 16px;">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Reparto</th>
+                    <th>Admin</th>
+                    <th>Stato</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for utente in utenti %}
+                <tr>
+                    <td>{{ utente.nome }}</td>
+                    <td>
+                        <span class="badge-reparto"
+                              style="background-color: {{ colore_reparto(utente.reparto) }}20;
+                                     color: {{ colore_reparto(utente.reparto) }};
+                                     padding: 3px 8px;
+                                     border-radius: 4px;
+                                     font-size: 12px;
+                                     font-weight: 600;">
+                            {{ utente.reparto }}
+                        </span>
+                    </td>
+                    <td>{{ '✓' if utente.is_admin else '—' }}</td>
+                    <td>
+                        <span style="color: {{ '#50c080' if utente.attivo else '#e05050' }}">
+                            {{ 'Attivo' if utente.attivo else 'Disattivato' }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if utente.id != session.get('utente_id') %}
+                        <form action="{{ url_for('main.toggle_utente', utente_id=utente.id) }}"
+                              method="POST" style="display: inline;">
+                            <button type="submit"
+                                    class="btn-dettaglio"
+                                    style="background: none; border: none;
+                                           cursor: pointer;">
+                                {{ 'Disattiva' if utente.attivo else 'Riattiva' }}
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

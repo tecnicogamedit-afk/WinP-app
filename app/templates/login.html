@@ -18,9 +18,7 @@
         </div>
 
         {% if errore %}
-        <div class="login-errore">
-            {{ errore }}
-        </div>
+        <div class="login-errore">{{ errore }}</div>
         {% endif %}
 
         <form class="login-form" action="" method="POST">
@@ -43,8 +41,7 @@
                 <select class="campo-select" id="utente_id" name="utente_id" required>
                     <option value="">— Seleziona reparto prima —</option>
                     {% for utente in utenti %}
-                    <option value="{{ utente.id }}"
-                            data-reparto="{{ utente.reparto }}">
+                    <option value="{{ utente.id }}" data-reparto="{{ utente.reparto }}">
                         {{ utente.nome }}
                     </option>
                     {% endfor %}
@@ -53,14 +50,14 @@
 
             <div class="campo-gruppo">
                 <label class="campo-etichetta" for="password">
-                    Password amministratore
-                    <span class="campo-opzionale">(opzionale)</span>
+                    Password
+                    <span class="campo-opzionale">(opzionale per utenti base)</span>
                 </label>
                 <input class="campo-input"
                        type="password"
                        id="password"
                        name="password"
-                       placeholder="Solo per accesso admin">
+                       placeholder="Lascia vuoto per accesso base">
             </div>
 
             <button class="btn-accedi" type="submit">Accedi</button>
@@ -80,9 +77,7 @@
 
         const placeholder = document.createElement('option');
         placeholder.value = '';
-        placeholder.textContent = repartoScelto
-            ? '— Seleziona nome —'
-            : '— Seleziona reparto prima —';
+        placeholder.textContent = repartoScelto ? '— Seleziona nome —' : '— Seleziona reparto prima —';
         selectUtente.appendChild(placeholder);
 
         tutteOpzioni.forEach(function(opzione) {
@@ -99,9 +94,9 @@
     });
 
     selectUtente.addEventListener('change', function() {
-        const opzioneScelta = this.options[this.selectedIndex];
-        if (!opzioneScelta || opzioneScelta.value === '') return;
-        const repartoUtente = opzioneScelta.getAttribute('data-reparto');
+        const opzione = this.options[this.selectedIndex];
+        if (!opzione || opzione.value === '') return;
+        const repartoUtente = opzione.getAttribute('data-reparto');
         if (repartoUtente) {
             selectReparto.value = repartoUtente;
         }

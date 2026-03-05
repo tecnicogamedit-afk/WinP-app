@@ -40,9 +40,15 @@ def inizializza_db():
         ),
         (
             'password_admin',
-            'WinP2025',
+            'admin',
             'Password per accesso amministratore — cambiarla subito'
         ),
+        (
+            'password_avanzato',
+            'admin',
+            'Password per accesso utente avanzato — cambiarla subito'
+        ),
+
     ]
 
     # Per ogni parametro controlla se esiste già.

@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block titolo %}WinP — {{ commessa.cliente }}{% endblock %}
+
+{% block contenuto %}
+
+<div class="dettaglio-contenitore">
+
+    <!-- ── Intestazione ── -->
+    <div class="dettaglio-intestazione">
+        <div>
+            <div class="dettaglio-breadcrumb">
+                <a href="{{ url_for('main.dashboard') }}">← Dashboard</a>
+                <span>›</span>
+                <span>{{ commessa.id_commessa }}</span>
+            </div>
+            <h1 class="dettaglio-titolo">{{ commessa.cliente }}</h1>
+            <p class="dettaglio-sottotitolo">{{ commessa.descrizione }}</p>
+        </div>
+        <div class="dettaglio-stato">
+            <span class="semaforo semaforo-{{ commessa.stato_globale | lower }}"
+                  style="width: 16px; height: 16px;"></span>
+            <span class="dettaglio-stato-testo">{{ commessa.stato_globale | title }}</span>
+        </div>
+    </div>
+
+    <!-- ── Griglia sezioni ── -->
+    <div class="dettaglio-griglia">
+
+        <!-- ── SEZIONE COMMERCIALE ── -->
+        <div class="dettaglio-sezione sezione-commerciale">
+            <div class="sezione-header">
+                <h2 class="sezione-titolo-small">Commerciale</h2>
+                {% if session.get('reparto') in ['Commerciale', 'Amministratore'] %}
+                <span class="sezione-badge editabile">Modificabile</span>
+                {% else %}
+                <span class="sezione-badge readonly">Sola lettura</span>
+                {% endif %}
+            </div>
+
+            <form method="POST" action="{{ url_for('main.aggiorna_commessa', commessa_id=commessa.id_commessa) }}">
+                <input type="hidden" name="sezione" value="commerciale">
+
+                <div class="campo-gruppo">
+                    <label class="campo-etichetta">Cliente</label>
+                    <input class="campo-input"
+                           type="text"
+                           name="cliente"
+                           value="{{ commessa.cliente or '' }}"
+                           {{ 'readonly' if session.get('reparto') not in ['Commerciale', 'Amministratore'] }}>
+                </div>
+
+                <div class="campo-gruppo">
+                    <label class="campo-etichetta">Descrizione lavoro</label>
+                    <textarea class="campo-textarea"
+                              name="descrizione"
+                              rows="3"
+                              {{ 'readonly' if session.get('reparto') not in ['Commerciale', 'Amministratore'] }}>{{ commessa.descrizione or '' }}</textarea>
+                </div>
+
+                <div class="campo-riga">
+                    <div class="campo-gruppo">
+                        <label class="campo-etichetta">Data consegna richiesta</label>
+                        <input class="campo-input"
+                               type="date"
+                               name="data_consegna"
+                               value="{{ commessa.data_consegna.strftime('%Y-%m-%d') if commessa.data_consegna else '' }}"
+                               {{ 'readonly' if session.get('reparto') not in ['Commerciale', 'Amministratore'] }}>
+                    </div>
+
+                    <div class="campo-gruppo">
+                        <label class="campo-etichetta">Data tassativa</label>
+                        <input class="campo-input"
+                               type="date"
+                               name="data_tassativa_co"
+                               value="{{ commessa.data_tassativa.strftime('%Y-%m-%d') if commessa.data_tassativa else '' }}"
+                               {{ 'readonly' if session.get('reparto') not in ['Commerciale', 'Amministratore'] }}>
+                    </div>
+
+                    <div class="campo-gruppo">
+                        <label class="campo-etichetta">Priorità quotazione</label>
+                        <select class="campo-select"
+                                name="priorita"
+                                {{ 'disabled' if session.get('reparto') not in ['Commerciale', 'Amministratore'] }}>
+                            <option value="">— Nessuna —</option>
+                            <option value="Urgente" {{ 'selected' if commessa.priorita == 'Urgente' }}>Urgente</option>
+                            <option value="ASAP" {{ 'selected' if commessa.priorita == 'ASAP' }}>ASAP</option>
+                            <option value="Appena possibile" {{ 'selected' if commessa.priorita == 'Appena possibile' }}>Appena possibile</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="campo-gruppo">
+                    <label class="campo-etichetta">Riscontro cliente</label>
+                    <select class="campo-select"
+                            name="riscontro"
+                            {{ 'disabled' if session.get('reparto') not in ['Commerciale', 'Amministratore'] }}>
+                        <option value="">— In attesa —</option>
+                        <option value="Confermata" {{ 'selected' if commessa.riscontro == 'Confermata' }}>Confermata</option>
+                        <option value="Non confermata" {{ 'selected' if commessa.riscontro == 'Non confermata' }}>Non confermata</option>
+                        <option value="Variante" {{ 'selected' if commessa.riscontro == 'Variante' }}>Variante</option>
+                    </select>
+                </div>
+
+                <div class="campo-gruppo">
+                    <label class="campo-etichetta">Note commerciale</label>
+                    <textarea class="campo-textarea"
+                              name="note_co"
+                              rows="2"
+                              {{ 'readonly' if session.get('reparto') not in ['Commerciale', 'Amministratore'] }}>{{ commessa.note_co or '' }}</textarea>
+                </div>
+
+                {% if session.get('reparto') in ['Commerciale', 'Amministratore'] %}
+                <div class="sezione-pulsanti">
+                    <button type="submit" class="btn-salva-sezione">
+                        Salva
+                    </button>
+                </div>
+                {% endif %}
+
+            </form>
+        </div>
+
+        <!-- ── SEZIONE TECNICO ── -->
+        <div class="dettaglio-sezione sezione-tecnico">
+            <div class="sezione-header">
+                <h2 class="sezione-titolo-small">Tecnico</h2>
+                {% if session.get('reparto') in ['Tecnico', 'Amministratore'] %}
+                <span class="sezione-badge editabile">Modificabile</span>
+                {% else %}
+                <span class="sezione-badge readonly">Sola lettura</span>
+                {% endif %}
+            </div>
+
+            <form method="POST" action="{{ url_for('main.aggiorna_commessa', commessa_id=commessa.id_commessa) }}">
+                <input type="hidden" name="sezione" value="tecnico">
+
+                <div class="campo-riga">
+                    <div class="campo-gruppo">
+                        <label class="campo-etichetta">N° Preventivo</label>
+                        <input class="campo-input"
+                               type="text"
+                               name="num_preventivo"
+                               placeholder="Es. 26G0001"
+                               value="{{ commessa.num_preventivo or '' }}"
+                               {{ 'readonly' if session.get('reparto') not in ['Tecnico', 'Amministratore'] }}>
+                    </div>
+
+                    <div class="campo-gruppo">
+                        <label class="campo-etichetta">Data quotazione</label>
+                        <input class="campo-input"
+                               type="date"
+                               name="data_quotazione"
+                               value="{{ commessa.data_quotazione.strftime('%Y-%m-%d') if commessa.data_quotazione else '' }}"
+                               {{ 'readonly' if session.get('reparto') not in ['Tecnico', 'Amministratore'] }}>
+                    </div>
+                </div>
+
+                <div class="campo-riga">
+                    <div class="campo-gruppo">
+                        <label class="campo-etichetta">N° Commessa</label>
+                        <input class="campo-input"
+                               type="text"
+                               name="num_commessa"
+                               placeholder="Es. 26G0001"
+                               value="{{ commessa.num_commessa or '' }}"
+                               {{ 'readonly' if session.get('reparto') not in ['Tecnico', 'Amministratore'] }}>
+                    </div>
+
+
+                </div>
+
+                 {% if session.get('reparto') in ['Tecnico', 'Amministratore'] %}
+                <div class="sezione-pulsanti">
+                    <button type="submit" class="btn-salva-sezione">
+                        Salva
+                    </button>
+                </div>
+                {% endif %}
+
+            </form>
+        </div>
+
+        <!-- ── SEZIONE STATI REPARTI ── -->
+        <div class="dettaglio-sezione sezione-stati">
+            <div class="sezione-header">
+                <h2 class="sezione-titolo-small">Stati reparti</h2>
+            </div>
+
+            <div class="stati-griglia">
+
+                {% set reparti_stati = [
+                    ('Commerciale', commessa.stato_co, 'stato_co'),
+                    ('Grafica', commessa.stato_gr, 'stato_gr'),
+                    ('Produzione', commessa.stato_st, 'stato_st'),
+                    ('Legatoria', commessa.stato_le, 'stato_le'),
+                    ('Lav. Esterne', commessa.stato_ex, 'stato_ex'),
+                    ('Logistica', commessa.stato_lg, 'stato_lg'),
+                ] %}
+
+                {% for nome_rep, stato, campo in reparti_stati %}
+                <div class="stato-reparto">
+                    <span class="stato-reparto-nome">{{ nome_rep }}</span>
+                    <span class="stato-reparto-valore stato-{{ stato | lower | replace(' ', '-') }}">
+                        {{ stato or '—' }}
+                    </span>
+                </div>
+                {% endfor %}
+
+            </div>
+
+            <!-- Info aggiuntive -->
+            <div class="info-aggiuntive">
+                <div class="info-riga">
+                    <span class="info-etichetta">ID interno</span>
+                    <span class="info-valore mono">{{ commessa.id_commessa }}</span>
+                </div>
+                <div class="info-riga">
+                    <span class="info-etichetta">Creata il</span>
+                    <span class="info-valore">{{ commessa.creata_il.strftime('%d/%m/%Y') if commessa.creata_il else '—' }}</span>
+                </div>
+                <div class="info-riga">
+                    <span class="info-etichetta">Ultima modifica</span>
+                    <span class="info-valore">{{ commessa.ultima_modifica.strftime('%d/%m/%Y %H:%M') if commessa.ultima_modifica else '—' }}</span>
+                </div>
+                <div class="info-riga">
+                    <span class="info-etichetta">Modificata da</span>
+                    <span class="info-valore">{{ commessa.modificata_da or '—' }}</span>
+                </div>
+                <div class="info-riga">
+                    <span class="info-etichetta">Versione</span>
+                    <span class="info-valore">{{ commessa.versione }}</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

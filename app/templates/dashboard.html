@@ -121,7 +121,8 @@
 
                 <!-- Pulsante dettaglio -->
                 <td class="col-azioni">
-                    <a href="#" class="btn-dettaglio">Apri</a>
+                    <a href="{{ url_for('main.dettaglio_commessa', commessa_id=commessa.id_commessa) }}"
+                        class="btn-dettaglio">Apri</a>
                 </td>
 
             </tr>

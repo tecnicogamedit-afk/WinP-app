@@ -45,7 +45,15 @@
             {% endif %}
 
             {% if session.get('is_admin') %}
-            <a href="#" class="navbar-link">Admin</a>
+            <div class="navbar-dropdown">
+                <span class="navbar-link {% if 'admin' in request.endpoint %}attivo{% endif %}">
+                    Admin ▾
+                </span>
+                <div class="navbar-dropdown-menu">
+                    <a href="{{ url_for('main.admin_utenti') }}" class="dropdown-link">Utenti</a>
+                    <a href="{{ url_for('main.admin_impostazioni') }}" class="dropdown-link">Impostazioni</a>
+                </div>
+            </div>
             {% endif %}
         </div>
 
@@ -54,8 +62,56 @@
                 {{ session.get('utente_nome', '') }}
                 <span class="navbar-reparto">{{ session.get('reparto', '') }}</span>
             </span>
+        
+            <!-- Pulsante elevazione admin -->
+            {% if not session.get('is_admin') %}
+            <button class="navbar-admin-btn" onclick="togglePopupAdmin()">⚙</button>
+            {% endif %}
+        
             <a href="{{ url_for('main.logout') }}" class="navbar-esci">Esci</a>
         </div>
+        
+        <!-- Popup password admin -->
+        <div id="popup-admin" class="popup-admin nascosto">
+            <div class="popup-admin-contenuto">
+                <h3 class="popup-admin-titolo">Accesso amministratore</h3>
+                <form action="{{ url_for('main.eleva_admin') }}" method="POST">
+                    <input type="hidden" name="redirect_url" value="{{ request.url }}">
+                    <input class="campo-input"
+                           type="password"
+                           name="password"
+                           placeholder="Password admin"
+                           style="margin-bottom: 12px;">
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <button type="button"
+                                class="btn-annulla"
+                                onclick="togglePopupAdmin()">
+                            Annulla
+                        </button>
+                        <button type="submit" class="btn-salva-sezione">
+                            Accedi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <script>
+        function togglePopupAdmin() {
+            const popup = document.getElementById('popup-admin');
+            popup.classList.toggle('nascosto');
+        }
+        // Chiude il popup cliccando fuori
+        document.addEventListener('click', function(e) {
+            const popup = document.getElementById('popup-admin');
+            const btn   = document.querySelector('.navbar-admin-btn');
+            if (!popup.classList.contains('nascosto') &&
+                !popup.contains(e.target) &&
+                e.target !== btn) {
+                popup.classList.add('nascosto');
+            }
+        });
+        </script>
 
     </nav>
 
