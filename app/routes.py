@@ -325,17 +325,16 @@ def eleva_admin():
     password     = request.form.get('password', '')
     redirect_url = request.form.get('redirect_url', '/')
 
-    cfg_admin = Configurazione.query.filter_by(chiave='password_admin').first()
     cfg_avanz = Configurazione.query.filter_by(chiave='password_avanzato').first()
-    pwd_admin = cfg_admin.valore if cfg_admin else 'WinP2025'
     pwd_avanz = cfg_avanz.valore if cfg_avanz else 'WinP2025'
 
-    if password == pwd_admin:
-        session['is_admin'] = True
-        session['reparto']  = 'Amministratore'
-        session['livello']  = 'amministratore'
-    elif password == pwd_avanz:
-        session['livello']  = 'avanzato'
+    # Il popup eleva SOLO ad avanzato — mai ad amministratore
+    # Per diventare amministratore bisogna fare logout e login
+    if password == pwd_avanz:
+        session['livello'] = 'avanzato'
+        session['livello_messaggio'] = 'Accesso avanzato attivato'
+    else:
+        session['livello_messaggio'] = 'Password non corretta'
 
     return redirect(redirect_url)
 

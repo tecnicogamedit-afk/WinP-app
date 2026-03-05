@@ -10,7 +10,6 @@
 
 <body class="pagina-app">
 
-    <!-- ── Barra di navigazione in alto ── -->
     <nav class="navbar">
 
         <div class="navbar-sinistra">
@@ -18,29 +17,30 @@
         </div>
 
         <div class="navbar-centro">
-            <!-- Links di navigazione — visibili in base al reparto -->
             <a href="{{ url_for('main.dashboard') }}"
                class="navbar-link {% if request.endpoint == 'main.dashboard' %}attivo{% endif %}">
                 Dashboard
             </a>
 
-            {% if session.get('reparto') in ['Commerciale', 'Amministratore'] %}
+            {% set avanzato = session.get('livello') in ['avanzato', 'amministratore'] or session.get('is_admin') %}
+
+            {% if avanzato or session.get('reparto') in ['Commerciale', 'Amministratore'] %}
             <a href="#" class="navbar-link">Commerciale</a>
             {% endif %}
 
-            {% if session.get('reparto') in ['Tecnico', 'Amministratore'] %}
+            {% if avanzato or session.get('reparto') in ['Tecnico', 'Amministratore'] %}
             <a href="#" class="navbar-link">Tecnico</a>
             {% endif %}
 
-            {% if session.get('reparto') in ['Grafica', 'Amministratore'] %}
+            {% if avanzato or session.get('reparto') in ['Grafica', 'Amministratore'] %}
             <a href="#" class="navbar-link">Grafica</a>
             {% endif %}
 
-            {% if session.get('reparto') in ['Produzione', 'Amministratore'] %}
+            {% if avanzato or session.get('reparto') in ['Produzione', 'Amministratore'] %}
             <a href="#" class="navbar-link">Produzione</a>
             {% endif %}
 
-            {% if session.get('reparto') in ['Logistica', 'Amministratore'] %}
+            {% if avanzato or session.get('reparto') in ['Logistica', 'Amministratore'] %}
             <a href="#" class="navbar-link">Logistica</a>
             {% endif %}
 
@@ -60,67 +60,84 @@
         <div class="navbar-destra">
             <span class="navbar-utente">
                 {{ session.get('utente_nome', '') }}
-                <span class="navbar-reparto">{{ session.get('reparto', '') }}</span>
+                <span class="navbar-reparto">
+                    {{ session.get('reparto', '') }}
+                    {% if session.get('livello') == 'avanzato' %}
+                    <span style="color: #e0c050;">— Avanzato</span>
+                    {% endif %}
+                </span>
             </span>
-        
-            <!-- Pulsante elevazione admin -->
-            {% if not session.get('is_admin') %}
-            <button class="navbar-admin-btn" onclick="togglePopupAdmin()">⚙</button>
+
+            {% if session.get('is_admin') %}
+            <a href="{{ url_for('main.admin_utenti') }}" class="navbar-admin-btn" title="Pannello admin">⚙</a>
+            {% else %}
+            <button class="navbar-admin-btn" id="btn-popup-admin" title="Accesso avanzato">⚙</button>
             {% endif %}
-        
+
             <a href="{{ url_for('main.logout') }}" class="navbar-esci">Esci</a>
         </div>
-        
-        <!-- Popup password admin -->
-        <div id="popup-admin" class="popup-admin nascosto">
-            <div class="popup-admin-contenuto">
-                <h3 class="popup-admin-titolo">Accesso amministratore</h3>
-                <form action="{{ url_for('main.eleva_admin') }}" method="POST">
-                    <input type="hidden" name="redirect_url" value="{{ request.url }}">
-                    <input class="campo-input"
-                           type="password"
-                           name="password"
-                           placeholder="Password admin"
-                           style="margin-bottom: 12px;">
-                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                        <button type="button"
-                                class="btn-annulla"
-                                onclick="togglePopupAdmin()">
-                            Annulla
-                        </button>
-                        <button type="submit" class="btn-salva-sezione">
-                            Accedi
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        
-        <script>
-        function togglePopupAdmin() {
-            const popup = document.getElementById('popup-admin');
-            popup.classList.toggle('nascosto');
-        }
-        // Chiude il popup cliccando fuori
-        document.addEventListener('click', function(e) {
-            const popup = document.getElementById('popup-admin');
-            const btn   = document.querySelector('.navbar-admin-btn');
-            if (!popup.classList.contains('nascosto') &&
-                !popup.contains(e.target) &&
-                e.target !== btn) {
-                popup.classList.add('nascosto');
-            }
-        });
-        </script>
 
     </nav>
 
-    <!-- ── Contenuto della pagina ── -->
-    <!-- Ogni pagina che estende base.html
-         inserisce il suo contenuto qui dentro -->
+    <!-- Popup admin — fuori dalla navbar -->
+    {% if not session.get('is_admin') %}
+    <div id="popup-admin" class="popup-admin nascosto">
+        <div class="popup-admin-contenuto">
+            <h3 class="popup-admin-titolo">Accesso avanzato</h3>
+            <form action="{{ url_for('main.eleva_admin') }}" method="POST">
+                <input type="hidden" name="redirect_url" value="{{ request.url }}">
+                <input class="campo-input"
+                       type="password"
+                       name="password"
+                       placeholder="Password accesso avanzato"
+                       style="margin-bottom: 12px;">
+                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button type="button" class="btn-annulla" id="btn-annulla-admin">
+                        Annulla
+                    </button>
+                    <button type="submit" class="btn-salva-sezione">
+                        Accedi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
     <main class="contenuto-principale">
         {% block contenuto %}{% endblock %}
     </main>
+
+    <script>
+    // Gestione popup admin
+    const btnPopup = document.getElementById('btn-popup-admin');
+    const popup    = document.getElementById('popup-admin');
+
+    if (btnPopup && popup) {
+        // Apre/chiude il popup
+        btnPopup.addEventListener('click', function(e) {
+            e.stopPropagation();
+            popup.classList.toggle('nascosto');
+        });
+
+        // Pulsante annulla
+        const btnAnnulla = document.getElementById('btn-annulla-admin');
+        if (btnAnnulla) {
+            btnAnnulla.addEventListener('click', function() {
+                popup.classList.add('nascosto');
+            });
+        }
+
+        // Chiude cliccando fuori — solo su elementi che non sono il form
+        document.addEventListener('click', function(e) {
+            if (!popup.classList.contains('nascosto') &&
+                !popup.contains(e.target) &&
+                e.target !== btnPopup) {
+                popup.classList.add('nascosto');
+            }
+        });
+    }
+    </script>
 
 </body>
 </html>
