@@ -225,33 +225,50 @@
 /* ── Contatori semaforo ── */
 .contatori {
     display: flex;
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 10px;
+    margin-bottom: 16px;
 }
 
 .contatore {
     background-color: var(--colore-superficie);
     border: 1px solid var(--colore-bordo);
     border-radius: var(--raggio-bordo);
-    padding: 16px 24px;
+    padding: 10px 16px;
     text-align: center;
     flex: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
 }
 
-.contatore.rosso  { border-left: 3px solid #e05050; }
-.contatore.giallo { border-left: 3px solid #e0c050; }
-.contatore.verde  { border-left: 3px solid #50c080; }
-.contatore.totale { border-left: 3px solid var(--accent-blu); }
+.contatore:hover {
+    border-color: var(--testo-secondario);
+    transform: translateY(-1px);
+}
+
+.contatore.attivo {
+    box-shadow: 0 0 0 2px currentColor;
+}
+
+.contatore.rosso  { border-left: 4px solid #e05050; }
+.contatore.giallo { border-left: 4px solid #e0c050; }
+.contatore.verde  { border-left: 4px solid #50c080; }
+.contatore.totale { border-left: 4px solid var(--accent-blu); }
+
+.contatore.rosso.attivo  { background-color: rgba(224, 80, 80, 0.12); }
+.contatore.giallo.attivo { background-color: rgba(224, 192, 80, 0.12); }
+.contatore.verde.attivo  { background-color: rgba(80, 192, 128, 0.12); }
+.contatore.totale.attivo { background-color: rgba(46, 95, 138, 0.12); }
 
 .contatore-numero {
     display: block;
-    font-size: 32px;
+    font-size: 22px;
     font-weight: 700;
     color: var(--testo-primario);
 }
 
 .contatore-etichetta {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--testo-secondario);
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -868,4 +885,257 @@ a:visited {
     position: relative;
     display: flex;
     align-items: center;
+}
+
+/* Fix allineamento icona admin navbar */
+a.navbar-admin-btn {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    line-height: 1;
+}
+
+/* ════════════════════════════════════════════════════════════
+   DASHBOARD LAYOUT CON PANNELLO RIEPILOGO
+   ════════════════════════════════════════════════════════════ */
+
+.dashboard-layout {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.tabella-contenitore {
+    flex: 1;
+    transition: all 0.3s ease;
+    min-width: 0;
+}
+
+.tabella-ristretta {
+    flex: 1;
+}
+
+.riga-commessa {
+    cursor: pointer;
+}
+
+.riga-selezionata {
+    background-color: rgba(46, 95, 138, 0.2) !important;
+    border-left: 3px solid var(--accent-blu) !important;
+}
+
+/* ── Pannello riepilogo ── */
+.pannello-riepilogo {
+    width: 300px;
+    min-width: 300px;
+    background-color: var(--colore-superficie);
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: sticky;
+    top: 68px;
+}
+
+.pannello-riepilogo.nascosto {
+    display: none;
+}
+
+.pannello-intestazione {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--colore-bordo);
+}
+
+.pannello-id {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--testo-secondario);
+}
+
+.pannello-chiudi {
+    background: none;
+    border: none;
+    color: var(--testo-secondario);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.pannello-chiudi:hover {
+    background-color: rgba(255,255,255,0.08);
+    color: var(--testo-primario);
+}
+
+.pannello-cliente {
+    padding: 16px;
+    border-bottom: 1px solid var(--colore-bordo);
+}
+
+.pannello-nome {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--testo-primario);
+    margin-bottom: 4px;
+}
+
+.pannello-descrizione {
+    font-size: 13px;
+    color: var(--testo-secondario);
+    line-height: 1.4;
+}
+
+.pannello-stato {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--colore-bordo);
+}
+
+.pannello-stato-testo {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--testo-primario);
+}
+
+.pannello-sezione {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--colore-bordo);
+}
+
+.pannello-sezione-titolo {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--testo-secondario);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.pannello-riga {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 13px;
+}
+
+.pannello-etichetta {
+    color: var(--testo-secondario);
+}
+
+.pannello-valore {
+    color: var(--testo-primario);
+    font-weight: 500;
+    text-align: right;
+    max-width: 160px;
+}
+
+.pannello-valore.small {
+    font-size: 12px;
+}
+
+.pannello-note {
+    font-size: 13px;
+    color: var(--testo-secondario);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.pannello-footer {
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.btn-apri-dettaglio {
+    display: block;
+    text-align: center;
+    background-color: var(--accent-blu);
+    border-radius: var(--raggio-bordo);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 12px;
+    padding: 9px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.btn-apri-dettaglio:hover {
+    background-color: #3a72a8;
+}
+
+/* ── Pannello placeholder ── */
+.pannello-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: var(--testo-secondario);
+    text-align: center;
+    height: 200px;
+}
+
+.pannello-placeholder-icona {
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+}
+
+.pannello-placeholder-testo {
+    font-size: 13px;
+    opacity: 0.6;
+    line-height: 1.5;
+}
+
+/* ── Barra filtri ── */
+.filtri-barra {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--colore-bordo);
+    background-color: rgba(255,255,255,0.02);
+}
+
+.filtri-cerca {
+    flex: 1;
+    background-color: var(--colore-sfondo);
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
+    color: var(--testo-primario);
+    font-size: 13px;
+    padding: 7px 12px;
+}
+
+.filtri-cerca:focus {
+    outline: none;
+    border-color: var(--accent-blu);
+}
+
+.filtri-count {
+    font-size: 12px;
+    color: var(--testo-secondario);
+    white-space: nowrap;
+}
+
+.contatore.attesa { border-left: 4px solid #8a6fd4; }
+.contatore.attesa.attivo { background-color: rgba(138, 111, 212, 0.12); }
+
+.sort-icon {
+    font-size: 10px;
+    color: var(--testo-secondario);
+}
+
+.tabella thead th:hover {
+    color: var(--testo-primario);
 }

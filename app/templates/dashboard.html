@@ -1,145 +1,372 @@
 {% extends "base.html" %}
-<!--
-    Questo file "estende" base.html — significa che
-    usa il layout base (navbar, struttura generale)
-    e inserisce il suo contenuto nel blocco "contenuto".
--->
 
 {% block titolo %}WinP — Dashboard{% endblock %}
 
 {% block contenuto %}
 
-<!-- ── Contatori semaforo ── -->
 <div class="contatori">
-
-    <div class="contatore rosso">
+    <div class="contatore rosso" onclick="filtraStato('ROSSO', this)">
         <span class="contatore-numero">{{ contatori.rosso }}</span>
         <span class="contatore-etichetta">Urgenti</span>
     </div>
-
-    <div class="contatore giallo">
+    <div class="contatore giallo" onclick="filtraStato('GIALLO', this)">
         <span class="contatore-numero">{{ contatori.giallo }}</span>
         <span class="contatore-etichetta">Attenzione</span>
     </div>
-
-    <div class="contatore verde">
+    <div class="contatore verde" onclick="filtraStato('VERDE', this)">
         <span class="contatore-numero">{{ contatori.verde }}</span>
         <span class="contatore-etichetta">In corso</span>
     </div>
-
-    <div class="contatore totale">
+    <div class="contatore attesa" onclick="filtraStato('ATTESA', this)">
+        <span class="contatore-numero">{{ contatori.attesa }}</span>
+        <span class="contatore-etichetta">In attesa</span>
+    </div>
+    <div class="contatore totale" onclick="filtraStato('TUTTI', this)">
         <span class="contatore-numero">{{ contatori.totale }}</span>
         <span class="contatore-etichetta">Totale</span>
     </div>
-
 </div>
 
-<!-- ── Tabella commesse ── -->
-<div class="tabella-contenitore">
+<div class="dashboard-layout">
 
-    <div class="tabella-intestazione">
-        <h2 class="tabella-titolo">Commesse attive</h2>
-        {% if session.get('reparto') in ['Commerciale', 'Amministratore'] %}
-        <a href="{{ url_for('main.nuova_richiesta') }}" class="btn-nuovo">+ Nuova richiesta</a>
+    <div class="tabella-contenitore" id="tabella-principale">
+
+        <div class="tabella-intestazione">
+            <h2 class="tabella-titolo">Commesse attive</h2>
+            {% if session.get("reparto") in ["Commerciale", "Amministratore"] %}
+            <a href="{{ url_for("main.nuova_richiesta") }}" class="btn-nuovo">+ Nuova richiesta</a>
+            {% endif %}
+        </div>
+
+        <div class="filtri-barra">
+            <input class="filtri-cerca"
+                   type="text"
+                   id="filtro-testo"
+                   placeholder="Cerca cliente, descrizione..."
+                   oninput="applicaFiltri()">
+            <span class="filtri-count" id="filtri-count"></span>
+        </div>
+
+        {% if commesse %}
+        <table class="tabella">
+            <thead>
+                <tr>
+                    <th class="col-stato" onclick="ordinaPer('stato')" style="cursor:pointer;">Stato <span class="sort-icon" id="sort-stato"></span></th>
+                    <th class="col-id">ID</th>
+                    <th class="col-cliente" onclick="ordinaPer('cliente')" style="cursor:pointer;">Cliente <span class="sort-icon" id="sort-cliente"></span></th>
+                    <th class="col-descr">Descrizione</th>
+                    <th class="col-data" onclick="ordinaPer('scadenza')" style="cursor:pointer;">Scadenza <span class="sort-icon" id="sort-scadenza"></span></th>
+                    <th class="col-priorita" onclick="ordinaPer('priorita')" style="cursor:pointer;">Priorita <span class="sort-icon" id="sort-priorita"></span></th>
+                    <th class="col-stato-co">Stato</th>
+                    {% if session.get("reparto") in ["Tecnico", "Amministratore"] %}
+                    <th class="col-preventivo">Preventivo</th>
+                    {% endif %}
+                    <th class="col-azioni"></th>
+                </tr>
+            </thead>
+            <tbody id="tabella-body">
+                {% for commessa in commesse %}
+                <tr class="riga-commessa riga-{{ commessa.stato_globale | lower }}"
+                    data-id="{{ commessa.id_commessa }}"
+                    data-cliente="{{ commessa.cliente or "" }}"
+                    data-descrizione="{{ commessa.descrizione or "" }}"
+                    data-stato="{{ commessa.stato_globale }}"
+                    data-in-attesa="{{ "1" if commessa.in_attesa else "0" }}"
+                    data-priorita="{{ commessa.priorita or "" }}"
+                    data-scadenza="{{ commessa.data_tassativa.strftime("%Y-%m-%d") if commessa.data_tassativa else "" }}"
+                    data-scadenza-display="{{ commessa.data_tassativa.strftime("%d/%m/%Y") if commessa.data_tassativa else "" }}"
+                    data-consegna="{{ commessa.data_consegna.strftime("%d/%m/%Y") if commessa.data_consegna else "" }}"
+                    data-creata="{{ commessa.creata_il.strftime("%Y-%m-%d") if commessa.creata_il else "" }}"
+                    data-stato-co="{{ commessa.stato_co or "" }}"
+                    data-preventivo="{{ commessa.num_preventivo or "" }}"
+                    data-commessa="{{ commessa.num_commessa or "" }}"
+                    data-note-co="{{ commessa.note_co or "" }}"
+                    data-modificata="{{ commessa.ultima_modifica.strftime("%d/%m/%Y %H:%M") if commessa.ultima_modifica else "" }}"
+                    data-modificata-da="{{ commessa.modificata_da or "" }}"
+                    data-stato-gr="{{ commessa.stato_gr or "" }}"
+                    data-stato-st="{{ commessa.stato_st or "" }}"
+                    data-stato-le="{{ commessa.stato_le or "" }}"
+                    data-stato-lg="{{ commessa.stato_lg or "" }}"
+                    onclick="apriRiepilogo(this)">
+
+                    <td class="col-stato">
+                        <span class="semaforo semaforo-{{ commessa.stato_globale | lower }}"></span>
+                    </td>
+                    <td class="col-id"><span class="id-commessa">{{ commessa.id_commessa }}</span></td>
+                    <td class="col-cliente">{{ commessa.cliente or "—" }}</td>
+                    <td class="col-descr"><span class="testo-troncato">{{ commessa.descrizione or "—" }}</span></td>
+                    <td class="col-data">
+                        {% if commessa.data_tassativa %}
+                        <span class="data {% if commessa.stato_globale == "ROSSO" %}data-scaduta{% endif %}">
+                            {{ commessa.data_tassativa.strftime("%d/%m/%y") }}
+                        </span>
+                        {% else %}<span class="testo-vuoto">—</span>{% endif %}
+                    </td>
+                    <td class="col-priorita">
+                        {% if commessa.priorita %}
+                        <span class="badge badge-{{ commessa.priorita | lower | replace(" ", "-") }}">{{ commessa.priorita }}</span>
+                        {% else %}<span class="testo-vuoto">—</span>{% endif %}
+                    </td>
+                    <td class="col-stato-co"><span class="stato-badge">{{ commessa.stato_co or "—" }}</span></td>
+                    {% if session.get("reparto") in ["Tecnico", "Amministratore"] %}
+                    <td class="col-preventivo">{{ commessa.num_preventivo or "—" }}</td>
+                    {% endif %}
+                    <td class="col-azioni">
+                        <a href="{{ url_for("main.dettaglio_commessa", commessa_id=commessa.id_commessa) }}"
+                           class="btn-dettaglio" onclick="event.stopPropagation()">Apri</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="tabella-vuota">
+            <p>Nessuna commessa attiva.</p>
+            {% if session.get("reparto") in ["Commerciale", "Amministratore"] %}
+            <p>Clicca <strong>+ Nuova richiesta</strong> per iniziare.</p>
+            {% endif %}
+        </div>
         {% endif %}
     </div>
 
-    {% if commesse %}
-    <table class="tabella">
-        <thead>
-            <tr>
-                <th class="col-stato">Stato</th>
-                <th class="col-id">ID</th>
-                <th class="col-cliente">Cliente</th>
-                <th class="col-descr">Descrizione</th>
-                <th class="col-data">Scadenza</th>
-                <th class="col-priorita">Priorità</th>
-                <th class="col-stato-co">Stato CO</th>
-                {% if session.get('reparto') in ['Tecnico', 'Amministratore'] %}
-                <th class="col-preventivo">Preventivo</th>
-                {% endif %}
-                <th class="col-azioni"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for commessa in commesse %}
-            <tr class="riga-commessa riga-{{ commessa.stato_globale | lower }}">
+    <div class="pannello-riepilogo" id="pannello-riepilogo">
 
-                <!-- Semaforo -->
-                <td class="col-stato">
-                    <span class="semaforo semaforo-{{ commessa.stato_globale | lower }}"></span>
-                </td>
+        <div class="pannello-placeholder" id="pannello-placeholder">
+            <div class="pannello-placeholder-icona">☰</div>
+            <p class="pannello-placeholder-testo">Seleziona una riga<br>per vedere il riepilogo</p>
+        </div>
 
-                <!-- ID commessa -->
-                <td class="col-id">
-                    <span class="id-commessa">{{ commessa.id_commessa }}</span>
-                </td>
+        <div id="pannello-contenuto" style="display:none;">
 
-                <!-- Cliente -->
-                <td class="col-cliente">{{ commessa.cliente or '—' }}</td>
+            <div class="pannello-intestazione">
+                <span class="pannello-id" id="riepilogo-id"></span>
+                <button class="pannello-chiudi" onclick="chiudiRiepilogo()">x</button>
+            </div>
 
-                <!-- Descrizione -->
-                <td class="col-descr">
-                    <span class="testo-troncato">
-                        {{ commessa.descrizione or '—' }}
-                    </span>
-                </td>
+            <div class="pannello-cliente">
+                <h2 class="pannello-nome" id="riepilogo-cliente"></h2>
+                <p class="pannello-descrizione" id="riepilogo-descrizione"></p>
+            </div>
 
-                <!-- Data scadenza -->
-                <td class="col-data">
-                    {% if commessa.data_tassativa %}
-                        <span class="data {% if commessa.stato_globale == 'ROSSO' %}data-scaduta{% endif %}">
-                            {{ commessa.data_tassativa.strftime('%d/%m/%y') }}
-                        </span>
-                    {% else %}
-                        <span class="testo-vuoto">—</span>
-                    {% endif %}
-                </td>
+            <div class="pannello-stato">
+                <span class="semaforo" id="riepilogo-semaforo"></span>
+                <span class="pannello-stato-testo" id="riepilogo-stato"></span>
+            </div>
 
-                <!-- Priorità -->
-                <td class="col-priorita">
-                    {% if commessa.priorita %}
-                        <span class="badge badge-{{ commessa.priorita | lower | replace(' ', '-') }}">
-                            {{ commessa.priorita }}
-                        </span>
-                    {% else %}
-                        <span class="testo-vuoto">—</span>
-                    {% endif %}
-                </td>
+            <div class="pannello-sezione">
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Priorita</span>
+                    <span class="pannello-valore" id="riepilogo-priorita"></span>
+                </div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Stato</span>
+                    <span class="pannello-valore" id="riepilogo-stato-co"></span>
+                </div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">In attesa</span>
+                    <span class="pannello-valore" id="riepilogo-in-attesa"></span>
+                </div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Consegna richiesta</span>
+                    <span class="pannello-valore" id="riepilogo-consegna"></span>
+                </div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Data tassativa</span>
+                    <span class="pannello-valore" id="riepilogo-scadenza"></span>
+                </div>
+            </div>
 
-                <!-- Stato Commerciale -->
-                <td class="col-stato-co">
-                    <span class="stato-badge">{{ commessa.stato_co or '—' }}</span>
-                </td>
+            <div class="pannello-sezione">
+                <div class="pannello-sezione-titolo">Tecnico</div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">N Preventivo</span>
+                    <span class="pannello-valore mono" id="riepilogo-preventivo"></span>
+                </div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">N Commessa</span>
+                    <span class="pannello-valore mono" id="riepilogo-commessa"></span>
+                </div>
+            </div>
 
-                <!-- Preventivo (solo Tecnico e Admin) -->
-                {% if session.get('reparto') in ['Tecnico', 'Amministratore'] %}
-                <td class="col-preventivo">
-                    {{ commessa.num_preventivo or '—' }}
-                </td>
-                {% endif %}
+            <div class="pannello-sezione">
+                <div class="pannello-sezione-titolo">Stati reparti</div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Grafica</span>
+                    <span class="pannello-valore" id="riepilogo-stato-gr"></span>
+                </div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Produzione</span>
+                    <span class="pannello-valore" id="riepilogo-stato-st"></span>
+                </div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Legatoria</span>
+                    <span class="pannello-valore" id="riepilogo-stato-le"></span>
+                </div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Logistica</span>
+                    <span class="pannello-valore" id="riepilogo-stato-lg"></span>
+                </div>
+            </div>
 
-                <!-- Pulsante dettaglio -->
-                <td class="col-azioni">
-                    <a href="{{ url_for('main.dettaglio_commessa', commessa_id=commessa.id_commessa) }}"
-                        class="btn-dettaglio">Apri</a>
-                </td>
+            <div class="pannello-sezione">
+                <div class="pannello-sezione-titolo">Note commerciale</div>
+                <p class="pannello-note" id="riepilogo-note-co"></p>
+            </div>
 
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            <div class="pannello-footer">
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Ultima modifica</span>
+                    <span class="pannello-valore small" id="riepilogo-modificata"></span>
+                </div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Da</span>
+                    <span class="pannello-valore small" id="riepilogo-modificata-da"></span>
+                </div>
+                <a class="btn-apri-dettaglio" id="riepilogo-link-dettaglio" href="#">
+                    Apri dettaglio completo
+                </a>
+            </div>
 
-    {% else %}
-    <!-- Messaggio quando non ci sono commesse -->
-    <div class="tabella-vuota">
-        <p>Nessuna commessa attiva.</p>
-        {% if session.get('reparto') in ['Commerciale', 'Amministratore'] %}
-        <p>Clicca <strong>+ Nuova richiesta</strong> per iniziare.</p>
-        {% endif %}
+        </div>
     </div>
-    {% endif %}
 
 </div>
+
+<script>
+var filtroStatoAttivo = 'TUTTI';
+var ordinaColonna = '';
+var ordinaDirezione = 1;
+
+function filtraStato(stato, el) {
+    filtroStatoAttivo = stato;
+    document.querySelectorAll('.contatore').forEach(function(c) {
+        c.classList.remove('attivo');
+    });
+    if (stato !== 'TUTTI') el.classList.add('attivo');
+    applicaFiltri();
+}
+
+function applicaFiltri() {
+    var testo = document.getElementById('filtro-testo').value.toLowerCase();
+    var righe = document.querySelectorAll('.riga-commessa');
+    var visibili = 0;
+
+    righe.forEach(function(riga) {
+        var stato     = riga.getAttribute('data-stato');
+        var inAttesa  = riga.getAttribute('data-in-attesa');
+        var cliente   = (riga.getAttribute('data-cliente') || '').toLowerCase();
+        var descr     = (riga.getAttribute('data-descrizione') || '').toLowerCase();
+        var id        = (riga.getAttribute('data-id') || '').toLowerCase();
+
+        var passaStato = false;
+        if (filtroStatoAttivo === 'TUTTI') passaStato = true;
+        else if (filtroStatoAttivo === 'ATTESA') passaStato = inAttesa === '1';
+        else passaStato = stato === filtroStatoAttivo;
+
+        var passaTesto = !testo || cliente.includes(testo) || descr.includes(testo) || id.includes(testo);
+
+        if (passaStato && passaTesto) {
+            riga.style.display = '';
+            visibili++;
+        } else {
+            riga.style.display = 'none';
+        }
+    });
+
+    var totale = righe.length;
+    var countEl = document.getElementById('filtri-count');
+    countEl.textContent = visibili < totale ? visibili + ' di ' + totale : '';
+}
+
+function ordinaPer(colonna) {
+    if (ordinaColonna === colonna) {
+        ordinaDirezione *= -1;
+    } else {
+        ordinaColonna = colonna;
+        ordinaDirezione = 1;
+    }
+
+    // Aggiorna icone
+    document.querySelectorAll('.sort-icon').forEach(function(el) { el.textContent = ''; });
+    var icona = document.getElementById('sort-' + colonna);
+    if (icona) icona.textContent = ordinaDirezione === 1 ? ' ▲' : ' ▼';
+
+    var tbody = document.getElementById('tabella-body');
+    var righe = Array.from(tbody.querySelectorAll('.riga-commessa'));
+
+    var prioritaOrdine = {'Urgente': 1, 'ASAP': 2, 'Appena possibile': 3, '': 4};
+    var statoOrdine    = {'ROSSO': 1, 'GIALLO': 2, 'VERDE': 3};
+
+    righe.sort(function(a, b) {
+        var va, vb;
+        if (colonna === 'cliente') {
+            va = (a.getAttribute('data-cliente') || '').toLowerCase();
+            vb = (b.getAttribute('data-cliente') || '').toLowerCase();
+        } else if (colonna === 'scadenza') {
+            va = a.getAttribute('data-scadenza') || 'zzzz';
+            vb = b.getAttribute('data-scadenza') || 'zzzz';
+        } else if (colonna === 'creata') {
+            va = a.getAttribute('data-creata') || '';
+            vb = b.getAttribute('data-creata') || '';
+        } else if (colonna === 'priorita') {
+            va = prioritaOrdine[a.getAttribute('data-priorita')] || 4;
+            vb = prioritaOrdine[b.getAttribute('data-priorita')] || 4;
+            return (va - vb) * ordinaDirezione;
+        } else if (colonna === 'stato') {
+            va = statoOrdine[a.getAttribute('data-stato')] || 4;
+            vb = statoOrdine[b.getAttribute('data-stato')] || 4;
+            return (va - vb) * ordinaDirezione;
+        }
+        if (va < vb) return -1 * ordinaDirezione;
+        if (va > vb) return 1 * ordinaDirezione;
+        return 0;
+    });
+
+    righe.forEach(function(r) { tbody.appendChild(r); });
+}
+
+function apriRiepilogo(riga) {
+    var d = riga.dataset;
+    document.getElementById('riepilogo-id').textContent = d.id;
+    document.getElementById('riepilogo-cliente').textContent = d.cliente || '—';
+    document.getElementById('riepilogo-descrizione').textContent = d.descrizione || '—';
+    document.getElementById('riepilogo-stato').textContent = d.stato || '—';
+    document.getElementById('riepilogo-priorita').textContent = d.priorita || '—';
+    document.getElementById('riepilogo-stato-co').textContent = d.statoCo || '—';
+    document.getElementById('riepilogo-in-attesa').textContent = d.inAttesa === '1' ? 'Si' : 'No';
+    document.getElementById('riepilogo-consegna').textContent = d.consegna || '—';
+    document.getElementById('riepilogo-scadenza').textContent = d.scadenzaDisplay || '—';
+    document.getElementById('riepilogo-preventivo').textContent = d.preventivo || '—';
+    document.getElementById('riepilogo-commessa').textContent = d.commessa || '—';
+    document.getElementById('riepilogo-note-co').textContent = d.noteCo || '—';
+    document.getElementById('riepilogo-modificata').textContent = d.modificata || '—';
+    document.getElementById('riepilogo-modificata-da').textContent = d.modificataDa || '—';
+    document.getElementById('riepilogo-stato-gr').textContent = d.statoGr || '—';
+    document.getElementById('riepilogo-stato-st').textContent = d.statoSt || '—';
+    document.getElementById('riepilogo-stato-le').textContent = d.statoLe || '—';
+    document.getElementById('riepilogo-stato-lg').textContent = d.statoLg || '—';
+
+    var sem = document.getElementById('riepilogo-semaforo');
+    sem.className = 'semaforo semaforo-' + (d.stato || 'verde').toLowerCase();
+
+    document.getElementById('riepilogo-link-dettaglio').href = '/commessa/' + d.id;
+
+    document.querySelectorAll('.riga-commessa').forEach(function(r) {
+        r.classList.remove('riga-selezionata');
+    });
+    riga.classList.add('riga-selezionata');
+
+    document.getElementById('pannello-placeholder').style.display = 'none';
+    document.getElementById('pannello-contenuto').style.display = 'block';
+}
+
+function chiudiRiepilogo() {
+    document.getElementById('pannello-placeholder').style.display = 'flex';
+    document.getElementById('pannello-contenuto').style.display = 'none';
+    document.querySelectorAll('.riga-commessa').forEach(function(r) {
+        r.classList.remove('riga-selezionata');
+    });
+}
+</script>
 
 {% endblock %}

@@ -82,10 +82,11 @@ def dashboard():
     ).order_by(Commessa.ultima_modifica.desc()).all()
 
     contatori = {
-        'rosso':  sum(1 for c in commesse if c.stato_globale == 'ROSSO'),
-        'giallo': sum(1 for c in commesse if c.stato_globale == 'GIALLO'),
-        'verde':  sum(1 for c in commesse if c.stato_globale == 'VERDE'),
-        'totale': len(commesse)
+        'rosso':    sum(1 for c in commesse if c.stato_globale == 'ROSSO'),
+        'giallo':   sum(1 for c in commesse if c.stato_globale == 'GIALLO'),
+        'verde':    sum(1 for c in commesse if c.stato_globale == 'VERDE'),
+        'attesa':   sum(1 for c in commesse if c.in_attesa),
+        'totale':   len(commesse)
     }
 
     return render_template('dashboard.html',

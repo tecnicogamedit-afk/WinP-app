@@ -100,6 +100,7 @@ class Commessa(db.Model):
     # ── Override manuale stato globale ────────────────────────
     # Solo l'admin può forzare manualmente lo stato globale
     override_flag   = db.Column(db.Boolean, default=False)
+    in_attesa       = db.Column(db.Boolean, default=False)
     override_da     = db.Column(db.String(100))
     override_data   = db.Column(db.DateTime)
 
