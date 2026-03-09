@@ -456,3 +456,39 @@ def admin_impostazioni():
                            pwd_avanz=cfg_avanz.valore if cfg_avanz else '',
                            errore=errore,
                            successo=successo)
+
+# =============================================================
+# ADMIN — VISUALIZZAZIONE DATABASE
+# =============================================================
+# Mostra il contenuto di tutte le tabelle del database.
+# Accessibile solo dall'amministratore.
+# Organizzata in 4 tab: Commesse, Utenti, Log, Configurazione
+#
+# NOTA: il log viene limitato alle ultime 200 righe per
+# evitare di caricare troppi dati in memoria
+# =============================================================
+
+@main.route('/admin/database')
+def admin_database():
+
+    # Controllo permessi — solo admin
+    if not session.get('is_admin'):
+        return redirect(url_for('main.dashboard'))
+
+    from app.models import LogAzione, Configurazione
+
+    # Carica tutte le righe di ogni tabella
+    # .order_by() ordina i risultati
+    # .desc() = ordine decrescente (dal più recente al più vecchio)
+    # .limit(200) = massimo 200 righe per il log
+    commesse       = Commessa.query.order_by(Commessa.ultima_modifica.desc()).all()
+    utenti         = Utente.query.order_by(Utente.reparto, Utente.nome).all()
+    log_azioni     = LogAzione.query.order_by(LogAzione.timestamp.desc()).limit(200).all()
+    configurazione = Configurazione.query.order_by(Configurazione.chiave).all()
+
+    # Passa i dati al template admin_database.html
+    return render_template('admin_database.html',
+                           commesse=commesse,
+                           utenti=utenti,
+                           log_azioni=log_azioni,
+                           configurazione=configurazione)

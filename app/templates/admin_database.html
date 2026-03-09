@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+<!-- 
+    Questo template estende base.html — eredita navbar e layout.
+    Mostra il contenuto del database in 4 tab separati.
+    Accessibile solo dall'amministratore.
+-->
+
+{% block titolo %}WinP — Database{% endblock %}
+
+{% block contenuto %}
+
+<div class="pagina-intestazione">
+    <h1 class="pagina-titolo">Visualizzazione Database</h1>
+    <p class="pagina-sottotitolo">Contenuto completo di tutte le tabelle — sola lettura</p>
+</div>
+
+<!-- 
+    TAB NAVIGATION
+    I tab sono pulsanti che mostrano/nascondono le sezioni.
+    Il JavaScript in fondo gestisce il click.
+-->
+<div class="db-tab-nav">
+    <button class="db-tab-btn attivo" onclick="mostraTab('commesse', this)">
+        Commesse <span class="db-tab-count">{{ commesse|length }}</span>
+    </button>
+    <button class="db-tab-btn" onclick="mostraTab('utenti', this)">
+        Utenti <span class="db-tab-count">{{ utenti|length }}</span>
+    </button>
+    <button class="db-tab-btn" onclick="mostraTab('log', this)">
+        Log Azioni <span class="db-tab-count">{{ log_azioni|length }}</span>
+    </button>
+    <button class="db-tab-btn" onclick="mostraTab('configurazione', this)">
+        Configurazione <span class="db-tab-count">{{ configurazione|length }}</span>
+    </button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB 1 — COMMESSE
+     Mostra tutte le commesse con tutti i campi
+     ══════════════════════════════════════════════════════════ -->
+<div class="db-tab-contenuto attivo" id="tab-commesse">
+    <div class="db-tabella-wrapper">
+        <table class="db-tabella">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ver.</th>
+                    <th>Record</th>
+                    <th>Globale</th>
+                    <th>Cliente</th>
+                    <th>Descrizione</th>
+                    <th>Priorità</th>
+                    <th>Stato CO</th>
+                    <th>N. Prev.</th>
+                    <th>N. Comm.</th>
+                    <th>Riscontro</th>
+                    <th>Scadenza</th>
+                    <th>In attesa</th>
+                    <th>Stato GR</th>
+                    <th>Stato ST</th>
+                    <th>Stato LE</th>
+                    <th>Stato LG</th>
+                    <th>Modificata da</th>
+                    <th>Ultima modifica</th>
+                    <th>Creata il</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in commesse %}
+                <tr class="{% if c.stato_record == 'ANNULLATO' %}riga-annullata{% elif c.stato_record == 'MODIFICATO' %}riga-storico{% endif %}">
+                    <td class="mono">{{ c.id_commessa }}</td>
+                    <td class="centro">{{ c.versione }}</td>
+                    <td><span class="badge-record badge-{{ c.stato_record | lower }}">{{ c.stato_record }}</span></td>
+                    <td><span class="semaforo semaforo-{{ c.stato_globale | lower }}"></span></td>
+                    <td>{{ c.cliente or '—' }}</td>
+                    <td class="testo-troncato">{{ c.descrizione or '—' }}</td>
+                    <td>{{ c.priorita or '—' }}</td>
+                    <td>{{ c.stato_co or '—' }}</td>
+                    <td class="mono">{{ c.num_preventivo or '—' }}</td>
+                    <td class="mono">{{ c.num_commessa or '—' }}</td>
+                    <td>{{ c.riscontro or '—' }}</td>
+                    <td>{{ c.data_tassativa.strftime('%d/%m/%y') if c.data_tassativa else '—' }}</td>
+                    <td class="centro">{{ 'Si' if c.in_attesa else 'No' }}</td>
+                    <td>{{ c.stato_gr or '—' }}</td>
+                    <td>{{ c.stato_st or '—' }}</td>
+                    <td>{{ c.stato_le or '—' }}</td>
+                    <td>{{ c.stato_lg or '—' }}</td>
+                    <td>{{ c.modificata_da or '—' }}</td>
+                    <td>{{ c.ultima_modifica.strftime('%d/%m/%y %H:%M') if c.ultima_modifica else '—' }}</td>
+                    <td>{{ c.creata_il.strftime('%d/%m/%y') if c.creata_il else '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB 2 — UTENTI
+     ══════════════════════════════════════════════════════════ -->
+<div class="db-tab-contenuto" id="tab-utenti">
+    <div class="db-tabella-wrapper">
+        <table class="db-tabella">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Reparto</th>
+                    <th>Admin</th>
+                    <th>Attivo</th>
+                    <th>Creato il</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in utenti %}
+                <tr class="{% if not u.attivo %}riga-disattiva{% endif %}">
+                    <td class="centro">{{ u.id }}</td>
+                    <td>{{ u.nome }}</td>
+                    <td>{{ u.reparto }}</td>
+                    <td class="centro">{{ 'Si' if u.is_admin else 'No' }}</td>
+                    <td class="centro">{{ 'Si' if u.attivo else 'No' }}</td>
+                    <td>{{ u.creato_il.strftime('%d/%m/%y %H:%M') if u.creato_il else '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB 3 — LOG AZIONI
+     Mostra le ultime 200 operazioni registrate
+     ══════════════════════════════════════════════════════════ -->
+<div class="db-tab-contenuto" id="tab-log">
+    <div class="db-tabella-wrapper">
+        <table class="db-tabella">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Utente</th>
+                    <th>Azione</th>
+                    <th>ID Commessa</th>
+                    <th>Dettaglio</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in log_azioni %}
+                <tr>
+                    <td class="mono">{{ l.timestamp.strftime('%d/%m/%y %H:%M') if l.timestamp else '—' }}</td>
+                    <td>{{ l.utente or '—' }}</td>
+                    <td><span class="badge-azione">{{ l.azione or '—' }}</span></td>
+                    <td class="mono">{{ l.id_commessa or '—' }}</td>
+                    <td>{{ l.dettaglio or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TAB 4 — CONFIGURAZIONE
+     Mostra i parametri di sistema
+     ══════════════════════════════════════════════════════════ -->
+<div class="db-tab-contenuto" id="tab-configurazione">
+    <div class="db-tabella-wrapper">
+        <table class="db-tabella">
+            <thead>
+                <tr>
+                    <th>Chiave</th>
+                    <th>Valore</th>
+                    <th>Descrizione</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cfg in configurazione %}
+                <tr>
+                    <td class="mono">{{ cfg.chiave }}</td>
+                    <td>
+                        <!-- Nasconde le password per sicurezza -->
+                        {% if 'password' in cfg.chiave %}
+                        <span class="testo-secondario">••••••••</span>
+                        {% else %}
+                        {{ cfg.valore or '—' }}
+                        {% endif %}
+                    </td>
+                    <td class="testo-secondario">{{ cfg.descrizione or '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 
+    JAVASCRIPT PER I TAB
+    mostraTab() viene chiamata quando si clicca un pulsante tab.
+    Nasconde tutti i contenuti e mostra solo quello selezionato.
+    Rimuove la classe 'attivo' da tutti i pulsanti e la aggiunge
+    solo a quello cliccato.
+-->
+<script>
+function mostraTab(nome, btn) {
+    // Nasconde tutti i contenuti tab
+    document.querySelectorAll('.db-tab-contenuto').forEach(function(el) {
+        el.classList.remove('attivo');
+    });
+    // Rimuove 'attivo' da tutti i pulsanti
+    document.querySelectorAll('.db-tab-btn').forEach(function(el) {
+        el.classList.remove('attivo');
+    });
+    // Mostra il contenuto selezionato e attiva il pulsante
+    document.getElementById('tab-' + nome).classList.add('attivo');
+    btn.classList.add('attivo');
+}
+</script>
+
+{% endblock %}

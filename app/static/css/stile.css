@@ -1139,3 +1139,147 @@ a.navbar-admin-btn {
 .tabella thead th:hover {
     color: var(--testo-primario);
 }
+
+/* ════════════════════════════════════════════════════════════
+   PAGINA DATABASE ADMIN
+   ════════════════════════════════════════════════════════════ */
+
+/* Intestazione pagina */
+.pagina-intestazione {
+    margin-bottom: 20px;
+}
+
+.pagina-titolo {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--testo-primario);
+    margin-bottom: 4px;
+}
+
+.pagina-sottotitolo {
+    font-size: 13px;
+    color: var(--testo-secondario);
+}
+
+/* Tab navigation — i pulsanti in cima */
+.db-tab-nav {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--colore-bordo);
+    padding-bottom: 0;
+}
+
+.db-tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--testo-secondario);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: -1px;
+    padding: 8px 16px;
+    transition: all 0.2s;
+}
+
+.db-tab-btn:hover {
+    color: var(--testo-primario);
+}
+
+.db-tab-btn.attivo {
+    border-bottom-color: var(--accent-blu);
+    color: var(--testo-primario);
+}
+
+/* Numero righe accanto al nome del tab */
+.db-tab-count {
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    font-size: 11px;
+    margin-left: 6px;
+    padding: 1px 6px;
+}
+
+/* Contenuto tab — nascosto di default, visibile se .attivo */
+.db-tab-contenuto {
+    display: none;
+}
+
+.db-tab-contenuto.attivo {
+    display: block;
+}
+
+/* Wrapper con scroll orizzontale per tabelle larghe */
+.db-tabella-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
+}
+
+/* Tabella database */
+.db-tabella {
+    border-collapse: collapse;
+    font-size: 12px;
+    min-width: 100%;
+    width: max-content;
+}
+
+.db-tabella th {
+    background-color: rgba(255,255,255,0.05);
+    border-bottom: 1px solid var(--colore-bordo);
+    color: var(--testo-secondario);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 8px 12px;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.db-tabella td {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--testo-primario);
+    padding: 7px 12px;
+    white-space: nowrap;
+}
+
+.db-tabella tr:last-child td {
+    border-bottom: none;
+}
+
+.db-tabella tr:hover td {
+    background-color: rgba(255,255,255,0.03);
+}
+
+/* Righe speciali */
+.riga-storico td   { opacity: 0.5; }
+.riga-annullata td { opacity: 0.35; text-decoration: line-through; }
+.riga-disattiva td { opacity: 0.45; }
+
+/* Badge stato record */
+.badge-record {
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    text-transform: uppercase;
+}
+
+.badge-attivo     { background-color: rgba(80,192,128,0.2); color: #50c080; }
+.badge-modificato { background-color: rgba(224,192,80,0.2); color: #e0c050; }
+.badge-annullato  { background-color: rgba(224,80,80,0.2);  color: #e05050; }
+
+/* Badge azione log */
+.badge-azione {
+    background-color: rgba(46,95,138,0.2);
+    border-radius: 4px;
+    color: var(--accent-blu);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+}
+
+/* Utilità */
+.mono   { font-family: monospace; }
+.centro { text-align: center; }
