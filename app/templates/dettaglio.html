@@ -83,9 +83,9 @@
                                 name="priorita"
                                 {{ 'disabled' if session.get('reparto') not in ['Commerciale', 'Amministratore'] }}>
                             <option value="">— Nessuna —</option>
-                            <option value="Urgente" {{ 'selected' if commessa.priorita == 'Urgente' }}>Urgente</option>
                             <option value="ASAP" {{ 'selected' if commessa.priorita == 'ASAP' }}>ASAP</option>
-                            <option value="Appena possibile" {{ 'selected' if commessa.priorita == 'Appena possibile' }}>Appena possibile</option>
+                            <option value="Urgente" {{ 'selected' if commessa.priorita == 'Urgente' }}>Urgente</option>
+                            <option value="Standard" {{ 'selected' if commessa.priorita == 'Standard' }}>Standard</option>
                         </select>
                     </div>
                 </div>

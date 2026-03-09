@@ -1283,3 +1283,108 @@ a.navbar-admin-btn {
 /* Utilità */
 .mono   { font-family: monospace; }
 .centro { text-align: center; }
+
+/* ── Titolo barra avanzamento ── */
+.contatori {
+    margin-bottom: 16px;
+}
+
+.contatori-titolo {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--testo-secondario);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.contatori-barra {
+    display: flex;
+    gap: 10px;
+}
+
+/* ── Fix barra avanzamento ── */
+.contatori {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.contatori-titolo {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--testo-secondario);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+}
+
+.contatori-barra {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+}
+
+.contatore {
+    flex: 1;
+    padding: 8px 12px;
+    border-left: none;
+    border-top: 3px solid transparent;
+}
+
+.contatore.rosso  { border-top-color: #e05050; }
+.contatore.giallo { border-top-color: #e0c050; }
+.contatore.verde  { border-top-color: #50c080; }
+.contatore.attesa { border-top-color: #8a6fd4; }
+.contatore.totale { border-top-color: var(--accent-blu); }
+
+.contatore-numero {
+    font-size: 20px;
+}
+
+/* ── Fix barra avanzamento v3 ── */
+.contatori {
+    display: block;
+    margin-bottom: 16px;
+}
+
+.contatori-titolo {
+    background-color: rgba(255,255,255,0.05);
+    border-radius: 6px 6px 0 0;
+    color: var(--testo-secondario);
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 6px 12px;
+    text-align: center;
+    text-transform: uppercase;
+    writing-mode: horizontal-tb;
+    transform: none;
+}
+
+.contatori-barra {
+    display: flex;
+    gap: 6px;
+}
+
+.contatore {
+    flex: 1;
+    padding: 8px 12px;
+    border-top: none;
+    border-left: 5px solid transparent;
+}
+
+.contatore.rosso  { border-left-color: #e05050; }
+.contatore.giallo { border-left-color: #e0c050; }
+.contatore.verde  { border-left-color: #50c080; }
+.contatore.attesa { border-left-color: #8a6fd4; }
+.contatore.totale { border-left-color: var(--accent-blu); }
+
+/* ── Badge priorità ── */
+.badge-asap     { background-color: rgba(224, 60, 60, 0.25); color: #e03c3c; }
+.badge-urgente  { background-color: rgba(224, 140, 40, 0.25); color: #e08c28; }
+.badge-standard { background-color: rgba(60, 180, 100, 0.25); color: #3cb464; }

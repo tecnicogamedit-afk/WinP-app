@@ -5,25 +5,28 @@
 {% block contenuto %}
 
 <div class="contatori">
-    <div class="contatore rosso" onclick="filtraStato('ROSSO', this)">
-        <span class="contatore-numero">{{ contatori.rosso }}</span>
-        <span class="contatore-etichetta">Urgenti</span>
-    </div>
-    <div class="contatore giallo" onclick="filtraStato('GIALLO', this)">
-        <span class="contatore-numero">{{ contatori.giallo }}</span>
-        <span class="contatore-etichetta">Attenzione</span>
-    </div>
-    <div class="contatore verde" onclick="filtraStato('VERDE', this)">
-        <span class="contatore-numero">{{ contatori.verde }}</span>
-        <span class="contatore-etichetta">In corso</span>
-    </div>
-    <div class="contatore attesa" onclick="filtraStato('ATTESA', this)">
-        <span class="contatore-numero">{{ contatori.attesa }}</span>
-        <span class="contatore-etichetta">In attesa</span>
-    </div>
-    <div class="contatore totale" onclick="filtraStato('TUTTI', this)">
-        <span class="contatore-numero">{{ contatori.totale }}</span>
-        <span class="contatore-etichetta">Totale</span>
+    <div class="contatori-titolo">Avanzamento Lavorazioni</div>
+    <div class="contatori-barra">
+        <div class="contatore rosso" onclick="filtraStato('ROSSO', this)">
+            <span class="contatore-numero">{{ contatori.rosso }}</span>
+            <span class="contatore-etichetta">Da verificare</span>
+        </div>
+        <div class="contatore giallo" onclick="filtraStato('GIALLO', this)">
+            <span class="contatore-numero">{{ contatori.giallo }}</span>
+            <span class="contatore-etichetta">In scadenza</span>
+        </div>
+        <div class="contatore verde" onclick="filtraStato('VERDE', this)">
+            <span class="contatore-numero">{{ contatori.verde }}</span>
+            <span class="contatore-etichetta">Programmate</span>
+        </div>
+        <div class="contatore attesa" onclick="filtraStato('ATTESA', this)">
+            <span class="contatore-numero">{{ contatori.attesa }}</span>
+            <span class="contatore-etichetta">In attesa</span>
+        </div>
+        <div class="contatore totale" onclick="filtraStato('TUTTI', this)">
+            <span class="contatore-numero">{{ contatori.totale }}</span>
+            <span class="contatore-etichetta">Tutte</span>
+        </div>
     </div>
 </div>
 
@@ -52,12 +55,12 @@
             <thead>
                 <tr>
                     <th class="col-stato" onclick="ordinaPer('stato')" style="cursor:pointer;">Stato <span class="sort-icon" id="sort-stato"></span></th>
-                    <th class="col-id">ID</th>
+                    <th class="col-data">Richiesta</th>
                     <th class="col-cliente" onclick="ordinaPer('cliente')" style="cursor:pointer;">Cliente <span class="sort-icon" id="sort-cliente"></span></th>
                     <th class="col-descr">Descrizione</th>
                     <th class="col-data" onclick="ordinaPer('scadenza')" style="cursor:pointer;">Scadenza <span class="sort-icon" id="sort-scadenza"></span></th>
                     <th class="col-priorita" onclick="ordinaPer('priorita')" style="cursor:pointer;">Priorita <span class="sort-icon" id="sort-priorita"></span></th>
-                    <th class="col-stato-co">Stato</th>
+                    <th class="col-stato-co">Stato Richiesta</th>
                     {% if session.get("reparto") in ["Tecnico", "Amministratore"] %}
                     <th class="col-preventivo">Preventivo</th>
                     {% endif %}
@@ -92,7 +95,13 @@
                     <td class="col-stato">
                         <span class="semaforo semaforo-{{ commessa.stato_globale | lower }}"></span>
                     </td>
-                    <td class="col-id"><span class="id-commessa">{{ commessa.id_commessa }}</span></td>
+                    <td class="col-data">
+                        {% if commessa.data_richiesta %}
+                        {{ commessa.data_richiesta.strftime('%d/%m/%y') }}
+                        {% else %}
+                        <span class="testo-vuoto">—</span>
+                        {% endif %}
+                    </td>
                     <td class="col-cliente">{{ commessa.cliente or "—" }}</td>
                     <td class="col-descr"><span class="testo-troncato">{{ commessa.descrizione or "—" }}</span></td>
                     <td class="col-data">

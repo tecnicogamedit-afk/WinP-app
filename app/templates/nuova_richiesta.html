@@ -80,17 +80,17 @@
                         id="priorita"
                         name="priorita">
                     <option value="">— Nessuna —</option>
-                    <option value="Urgente"
-                        {{ 'selected' if form and form.priorita == 'Urgente' }}>
-                        Urgente
-                    </option>
                     <option value="ASAP"
                         {{ 'selected' if form and form.priorita == 'ASAP' }}>
                         ASAP
                     </option>
-                    <option value="Appena possibile"
-                        {{ 'selected' if form and form.priorita == 'Appena possibile' }}>
-                        Appena possibile
+                    <option value="Urgente"
+                        {{ 'selected' if form and form.priorita == 'Urgente' }}>
+                        Urgente
+                    </option>
+                    <option value="Standard"
+                        {{ 'selected' if form and form.priorita == 'Standard' }}>
+                        Standard
                     </option>
                 </select>
             </div>
