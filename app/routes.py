@@ -1,10 +1,50 @@
+# =============================================================
+# routes.py — Pagine e logica dell'applicazione
+# =============================================================
+# Questo file definisce tutte le URL dell'applicazione e
+# cosa succede quando un utente le visita.
+#
+# STRUTTURA:
+#   Ogni funzione decorata con @main.route() e' una pagina.
+#   Il decoratore specifica l'URL e i metodi HTTP accettati:
+#     GET  = l'utente sta visitando la pagina
+#     POST = l'utente ha inviato un modulo
+#
+# PROTEZIONE PAGINE:
+#   Ogni pagina protetta controlla 'utente_id' nella sessione.
+#   Le pagine admin controllano 'is_admin' nella sessione.
+#   Se il controllo fallisce, reindirizza al login/dashboard.
+#
+# SESSIONE UTENTE (session[]):
+#   utente_id    = ID numerico dell'utente loggato
+#   utente_nome  = Nome dell'utente (es. 'Wilma')
+#   reparto      = Reparto dell'utente (es. 'Commerciale')
+#   is_admin     = True se l'utente e' Amministratore
+#   livello      = 'base' / 'avanzato' / 'amministratore'
+# =============================================================
+
 from flask import Blueprint, render_template, request, redirect, url_for, session
 from app.models import Utente, Commessa, Configurazione
+from app import db
+from datetime import date, datetime
 
 main = Blueprint('main', __name__)
 
 
-# ── Login ─────────────────────────────────────────────────────
+# =============================================================
+# LOGIN
+# =============================================================
+# Accessibile da / e /login
+#
+# LOGICA DI ACCESSO:
+#   Amministratore -> richiede password admin
+#   Utente normale -> nessuna password (livello base)
+#                  -> password avanzato (livello avanzato)
+#
+# Le password sono configurabili dal pannello Admin
+# senza toccare il codice (tabella Configurazione).
+# =============================================================
+
 @main.route('/', methods=['GET', 'POST'])
 @main.route('/login', methods=['GET', 'POST'])
 def login():
@@ -30,11 +70,10 @@ def login():
             else:
                 cfg_admin = Configurazione.query.filter_by(chiave='password_admin').first()
                 cfg_avanz = Configurazione.query.filter_by(chiave='password_avanzato').first()
-                pwd_admin = cfg_admin.valore if cfg_admin else 'WinP2025'
-                pwd_avanz = cfg_avanz.valore if cfg_avanz else 'WinP2025'
+                pwd_admin = cfg_admin.valore if cfg_admin else 'admin'
+                pwd_avanz = cfg_avanz.valore if cfg_avanz else 'utente'
 
                 if utente.is_admin:
-                    # Account Amministratore — richiede sempre password
                     if not password:
                         errore = 'L\'account Amministratore richiede la password.'
                     elif password == pwd_admin:
@@ -46,15 +85,11 @@ def login():
                     else:
                         errore = 'Password non corretta.'
                 else:
-                    # Utenti normali — mai admin
                     session['utente_id']   = utente.id
                     session['utente_nome'] = utente.nome
                     session['reparto']     = utente.reparto
                     session['is_admin']    = False
-                    if password == pwd_avanz:
-                        session['livello'] = 'avanzato'
-                    else:
-                        session['livello'] = 'base'
+                    session['livello']     = 'avanzato' if password == pwd_avanz else 'base'
 
                 if not errore:
                     return redirect(url_for('main.dashboard'))
@@ -63,14 +98,20 @@ def login():
     return render_template('login.html', utenti=utenti, errore=errore)
 
 
-# ── Logout ────────────────────────────────────────────────────
+# =============================================================
+# LOGOUT
+# =============================================================
+
 @main.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('main.login'))
 
 
-# ── Dashboard ─────────────────────────────────────────────────
+# =============================================================
+# DASHBOARD
+# =============================================================
+
 @main.route('/dashboard')
 def dashboard():
 
@@ -82,19 +123,29 @@ def dashboard():
     ).order_by(Commessa.ultima_modifica.desc()).all()
 
     contatori = {
-        'rosso':    sum(1 for c in commesse if c.stato_globale == 'ROSSO'),
-        'giallo':   sum(1 for c in commesse if c.stato_globale == 'GIALLO'),
-        'verde':    sum(1 for c in commesse if c.stato_globale == 'VERDE'),
-        'attesa':   sum(1 for c in commesse if c.in_attesa),
-        'totale':   len(commesse)
+        'rosso':  sum(1 for c in commesse if c.stato_globale == 'ROSSO'),
+        'giallo': sum(1 for c in commesse if c.stato_globale == 'GIALLO'),
+        'verde':  sum(1 for c in commesse if c.stato_globale == 'VERDE'),
+        'attesa': sum(1 for c in commesse if c.in_attesa),
+        'totale': len(commesse)
     }
 
-    return render_template('dashboard.html',
-                           commesse=commesse,
-                           contatori=contatori)
+    return render_template('dashboard.html', commesse=commesse, contatori=contatori)
 
+# =============================================================
+# NUOVA RICHIESTA DI QUOTAZIONE
+# =============================================================
+# Solo Commerciale e Amministratore possono creare richieste.
+#
+# ID COMMESSA AUTOMATICO:
+#   Formato AAMMXXX es. 2603001
+#   AA  = anno a 2 cifre
+#   MM  = mese a 2 cifre
+#   XXX = progressivo del mese a 3 cifre (si azzera ogni mese)
+#
+# CAMPI OBBLIGATORI: cliente, descrizione
+# =============================================================
 
-# ── Nuova richiesta ───────────────────────────────────────────
 @main.route('/nuova-richiesta', methods=['GET', 'POST'])
 def nuova_richiesta():
 
@@ -115,20 +166,16 @@ def nuova_richiesta():
         note_co     = request.form.get('note_co', '').strip()
 
         if not cliente:
-            errore = 'Il campo Cliente è obbligatorio.'
+            errore = 'Il campo Cliente e\' obbligatorio.'
         elif not descrizione:
-            errore = 'Il campo Descrizione è obbligatorio.'
+            errore = 'Il campo Descrizione e\' obbligatorio.'
         else:
-            from datetime import date, datetime
-
             oggi     = date.today()
-            anno     = oggi.strftime('%y')
-            mese     = oggi.strftime('%m')
-            prefisso = f'{anno}{mese}'
-
-            count       = Commessa.query.filter(Commessa.id_commessa.like(f'{prefisso}%')).count()
-            progressivo = str(count + 1).zfill(3)
-            id_commessa = f'{prefisso}{progressivo}'
+            prefisso = oggi.strftime('%y%m')
+            count    = Commessa.query.filter(
+                Commessa.id_commessa.like(f'{prefisso}%')
+            ).count()
+            id_commessa = f'{prefisso}{str(count + 1).zfill(3)}'
 
             nuova = Commessa(
                 id_commessa    = id_commessa,
@@ -138,8 +185,8 @@ def nuova_richiesta():
                 data_richiesta = oggi,
                 cliente        = cliente,
                 descrizione    = descrizione,
-                priorita       = priorita if priorita else None,
-                note_co        = note_co if note_co else None,
+                priorita       = priorita or None,
+                note_co        = note_co or None,
                 stato_co       = 'Da quotare',
                 modificata_da  = session.get('utente_nome')
             )
@@ -147,10 +194,8 @@ def nuova_richiesta():
             if data_cons:
                 nuova.data_consegna = datetime.strptime(data_cons, '%Y-%m-%d').date()
 
-            from app import db
             db.session.add(nuova)
             db.session.commit()
-
             return redirect(url_for('main.dashboard'))
 
         form = request.form
@@ -158,7 +203,10 @@ def nuova_richiesta():
     return render_template('nuova_richiesta.html', errore=errore, form=form)
 
 
-# ── Dettaglio commessa ────────────────────────────────────────
+# =============================================================
+# DETTAGLIO COMMESSA
+# =============================================================
+
 @main.route('/commessa/<commessa_id>')
 def dettaglio_commessa(commessa_id):
 
@@ -173,15 +221,25 @@ def dettaglio_commessa(commessa_id):
     return render_template('dettaglio.html', commessa=commessa)
 
 
-# ── Aggiorna commessa ─────────────────────────────────────────
+# =============================================================
+# AGGIORNA COMMESSA
+# =============================================================
+# Riceve i dati dal form del dettaglio e li salva.
+#
+# SEZIONI DISPONIBILI:
+#   'commerciale' -> aggiorna campi zona Commerciale
+#   'tecnico'     -> aggiorna campi zona Tecnico
+#
+# STATO AUTOMATICO:
+#   Dopo ogni salvataggio viene ricalcolato stato_globale.
+#   Se viene inserito num_commessa, stato_co = 'In lavorazione'.
+# =============================================================
+
 @main.route('/commessa/<commessa_id>/aggiorna', methods=['POST'])
 def aggiorna_commessa(commessa_id):
 
     if 'utente_id' not in session:
         return redirect(url_for('main.login'))
-
-    from app import db
-    from datetime import datetime
 
     commessa = Commessa.query.filter_by(
         id_commessa  = commessa_id,
@@ -190,16 +248,13 @@ def aggiorna_commessa(commessa_id):
 
     sezione = request.form.get('sezione')
 
-    if sezione == 'commerciale' and \
-       session.get('reparto') in ['Commerciale', 'Amministratore']:
+    if sezione == 'commerciale' and        session.get('reparto') in ['Commerciale', 'Amministratore']:
 
         commessa.cliente     = request.form.get('cliente', '').strip()
         commessa.descrizione = request.form.get('descrizione', '').strip()
-        commessa.note_co     = request.form.get('note_co', '').strip()
+        commessa.note_co     = request.form.get('note_co', '').strip() or None
         commessa.riscontro   = request.form.get('riscontro', '') or None
-
-        priorita = request.form.get('priorita', '')
-        commessa.priorita = priorita if priorita else None
+        commessa.priorita    = request.form.get('priorita', '') or None
 
         data_cons = request.form.get('data_consegna', '')
         commessa.data_consegna = datetime.strptime(data_cons, '%Y-%m-%d').date() if data_cons else None
@@ -207,8 +262,7 @@ def aggiorna_commessa(commessa_id):
         data_tass = request.form.get('data_tassativa_co', '')
         commessa.data_tassativa = datetime.strptime(data_tass, '%Y-%m-%d').date() if data_tass else None
 
-    elif sezione == 'tecnico' and \
-         session.get('reparto') in ['Tecnico', 'Amministratore']:
+    elif sezione == 'tecnico' and          session.get('reparto') in ['Tecnico', 'Amministratore']:
 
         commessa.num_preventivo = request.form.get('num_preventivo', '').strip() or None
         commessa.num_commessa   = request.form.get('num_commessa', '').strip() or None
@@ -224,11 +278,19 @@ def aggiorna_commessa(commessa_id):
     commessa.stato_globale   = commessa.calcola_stato_globale()
 
     db.session.commit()
-
     return redirect(url_for('main.dettaglio_commessa', commessa_id=commessa_id))
 
+# =============================================================
+# ADMIN — GESTIONE UTENTI
+# =============================================================
+# Solo Amministratore.
+#
+# REGOLE ELIMINAZIONE:
+#   - Non si puo' eliminare se stessi
+#   - Utenti con commesse associate vengono disattivati
+#     invece di eliminati (per preservare lo storico)
+# =============================================================
 
-# ── Gestione utenti ───────────────────────────────────────────
 @main.route('/admin/utenti', methods=['GET', 'POST'])
 def admin_utenti():
 
@@ -244,18 +306,18 @@ def admin_utenti():
         is_admin = request.form.get('is_admin') == '1'
 
         if not nome:
-            errore = 'Il nome è obbligatorio.'
+            errore = 'Il nome e\' obbligatorio.'
         elif not reparto:
-            errore = 'Il reparto è obbligatorio.'
+            errore = 'Il reparto e\' obbligatorio.'
         else:
             esiste = Utente.query.filter_by(nome=nome).first()
             if esiste:
-                errore = f'Esiste già un utente con il nome "{nome}".'
+                errore = f'Esiste gia\' un utente con il nome "{nome}".'
             else:
-                from app import db
-                nuovo = Utente(nome=nome, reparto=reparto,
-                               is_admin=is_admin, attivo=True)
-                db.session.add(nuovo)
+                db.session.add(Utente(
+                    nome=nome, reparto=reparto,
+                    is_admin=is_admin, attivo=True
+                ))
                 db.session.commit()
                 successo = f'Utente "{nome}" aggiunto con successo.'
 
@@ -279,14 +341,16 @@ def admin_utenti():
                            colore_reparto=colore_reparto)
 
 
-# ── Toggle utente ─────────────────────────────────────────────
+# =============================================================
+# ADMIN — ATTIVA/DISATTIVA UTENTE
+# =============================================================
+
 @main.route('/admin/utenti/<int:utente_id>/toggle', methods=['POST'])
 def toggle_utente(utente_id):
 
     if not session.get('is_admin'):
         return redirect(url_for('main.dashboard'))
 
-    from app import db
     utente = Utente.query.get(utente_id)
     if utente:
         utente.attivo = not utente.attivo
@@ -295,7 +359,10 @@ def toggle_utente(utente_id):
     return redirect(url_for('main.admin_utenti'))
 
 
-# ── Elimina utente ────────────────────────────────────────────
+# =============================================================
+# ADMIN — ELIMINA UTENTE
+# =============================================================
+
 @main.route('/admin/utenti/<int:utente_id>/elimina', methods=['POST'])
 def elimina_utente(utente_id):
 
@@ -305,12 +372,10 @@ def elimina_utente(utente_id):
     if utente_id == session.get('utente_id'):
         return redirect(url_for('main.admin_utenti'))
 
-    from app import db
     utente = Utente.query.get(utente_id)
-
     if utente:
-        commesse = Commessa.query.filter_by(modificata_da=utente.nome).count()
-        if commesse > 0:
+        ha_commesse = Commessa.query.filter_by(modificata_da=utente.nome).count() > 0
+        if ha_commesse:
             utente.attivo = False
         else:
             db.session.delete(utente)
@@ -319,7 +384,14 @@ def elimina_utente(utente_id):
     return redirect(url_for('main.admin_utenti'))
 
 
-# ── Elevazione admin temporanea ───────────────────────────────
+# =============================================================
+# ELEVAZIONE LIVELLO AVANZATO
+# =============================================================
+# Il popup ingranaggio nella navbar chiama questa route.
+# Eleva il livello SOLO ad 'avanzato' — mai ad 'amministratore'.
+# Per diventare admin bisogna fare logout e login come admin.
+# =============================================================
+
 @main.route('/eleva-admin', methods=['POST'])
 def eleva_admin():
 
@@ -327,10 +399,8 @@ def eleva_admin():
     redirect_url = request.form.get('redirect_url', '/')
 
     cfg_avanz = Configurazione.query.filter_by(chiave='password_avanzato').first()
-    pwd_avanz = cfg_avanz.valore if cfg_avanz else 'WinP2025'
+    pwd_avanz = cfg_avanz.valore if cfg_avanz else 'utente'
 
-    # Il popup eleva SOLO ad avanzato — mai ad amministratore
-    # Per diventare amministratore bisogna fare logout e login
     if password == pwd_avanz:
         session['livello'] = 'avanzato'
         session['livello_messaggio'] = 'Accesso avanzato attivato'
@@ -340,14 +410,24 @@ def eleva_admin():
     return redirect(redirect_url)
 
 
-# ── Impostazioni admin ────────────────────────────────────────
+# =============================================================
+# ADMIN — IMPOSTAZIONI
+# =============================================================
+# Permette di cambiare le password di accesso.
+# I valori vengono salvati nella tabella Configurazione.
+#
+# COME AGGIUNGERE UN'IMPOSTAZIONE:
+#   1. Aggiungi il campo in admin_impostazioni.html
+#   2. Aggiungi la logica di salvataggio qui sotto
+#   3. Aggiungi il parametro default in init_db.py
+# =============================================================
+
 @main.route('/admin/impostazioni', methods=['GET', 'POST'])
 def admin_impostazioni():
 
     if not session.get('is_admin'):
         return redirect(url_for('main.dashboard'))
 
-    from app import db
     errore   = None
     successo = None
 
