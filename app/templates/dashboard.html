@@ -23,7 +23,7 @@
             <span class="contatore-numero">{{ contatori.attesa }}</span>
             <span class="contatore-etichetta">In attesa</span>
         </div>
-        <div class="contatore totale" onclick="filtraStato('TUTTI', this)">
+        <div class="contatore totale attivo" onclick="filtraStato('TUTTI', this)">
             <span class="contatore-numero">{{ contatori.totale }}</span>
             <span class="contatore-etichetta">Tutte</span>
         </div>
@@ -249,9 +249,9 @@ var ordinaDirezione = 1;
 function filtraStato(stato, el) {
     filtroStatoAttivo = stato;
     document.querySelectorAll('.contatore').forEach(function(c) {
-        c.classList.remove('attivo');
+    c.classList.remove('attivo');
     });
-    if (stato !== 'TUTTI') el.classList.add('attivo');
+    el.classList.add('attivo');
     applicaFiltri();
 }
 
