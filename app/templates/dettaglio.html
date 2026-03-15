@@ -15,12 +15,22 @@
                 <span>{{ commessa.id_commessa }}</span>
             </div>
             <h1 class="dettaglio-titolo">{{ commessa.cliente }}</h1>
+            {% if commessa.priorita %}
+                <span class="badge badge-{{ commessa.priorita | lower }}">{{ commessa.priorita }}</span>
+            {% endif %}
             <p class="dettaglio-sottotitolo">{{ commessa.descrizione }}</p>
         </div>
         <div class="dettaglio-stato">
             <span class="semaforo semaforo-{{ commessa.stato_globale | lower }}"
                   style="width: 16px; height: 16px;"></span>
-            <span class="dettaglio-stato-testo">{{ commessa.stato_globale | title }}</span>
+                  <span class="dettaglio-stato-testo" style="color:
+                  {% if commessa.stato_globale == 'ROSSO' %}#e05050
+                  {% elif commessa.stato_globale == 'GIALLO' %}#e0c050
+                  {% else %}#50c080{% endif %}">
+                  {% if commessa.stato_globale == 'ROSSO' %}Da verificare
+                  {% elif commessa.stato_globale == 'GIALLO' %}In scadenza
+                  {% else %}Programmato{% endif %}
+              </span>
         </div>
     </div>
 

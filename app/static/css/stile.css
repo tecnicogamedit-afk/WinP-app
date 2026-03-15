@@ -1,4 +1,29 @@
-* {
+/* =============================================================
+   stile.css — Foglio di stile principale WinP
+   =============================================================
+   ORGANIZZAZIONE:
+   1. Reset e variabili globali
+   2. Login
+   3. Layout applicazione e navbar
+   4. Campi form (condivisi tra tutte le pagine)
+   5. Dashboard — contatori avanzamento
+   6. Dashboard — tabella commesse
+   7. Dashboard — pannello riepilogo
+   8. Form nuova richiesta
+   9. Pagina dettaglio commessa
+   10. Gestione utenti admin
+   11. Pagina database admin
+   ============================================================= */
+
+
+/* =============================================================
+   1. RESET E VARIABILI GLOBALI
+   =============================================================
+   Le variabili CSS (--nome) permettono di cambiare i colori
+   dell'intera app modificando solo questo blocco.
+   ============================================================= */
+
+   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -16,6 +41,13 @@
     --raggio-bordo:      8px;
     --ombra:             0 4px 20px rgba(0, 0, 0, 0.4);
 }
+
+a:visited { color: inherit; }
+
+
+/* =============================================================
+   2. LOGIN
+   ============================================================= */
 
 .pagina-login {
     background-color: var(--colore-sfondo);
@@ -64,47 +96,6 @@
     margin-bottom: 24px;
 }
 
-.campo-gruppo {
-    margin-bottom: 20px;
-}
-
-.campo-etichetta {
-    display: block;
-    color: var(--testo-secondario);
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 8px;
-}
-
-.campo-opzionale {
-    color: var(--testo-secondario);
-    font-weight: 400;
-    font-size: 12px;
-    opacity: 0.7;
-}
-
-.campo-input,
-.campo-select {
-    width: 100%;
-    background-color: var(--colore-sfondo);
-    border: 1px solid var(--colore-bordo);
-    border-radius: var(--raggio-bordo);
-    color: var(--testo-primario);
-    font-size: 14px;
-    padding: 10px 14px;
-    transition: border-color 0.2s;
-}
-
-.campo-input:focus,
-.campo-select:focus {
-    outline: none;
-    border-color: var(--accent-blu);
-}
-
-.campo-select option {
-    background-color: var(--colore-superficie);
-}
-
 .btn-accedi {
     width: 100%;
     background-color: var(--accent-blu);
@@ -119,17 +110,12 @@
     transition: background-color 0.2s, transform 0.1s;
 }
 
-.btn-accedi:hover {
-    background-color: #3a72a8;
-}
+.btn-accedi:hover  { background-color: #3a72a8; }
+.btn-accedi:active { transform: scale(0.98); }
 
-.btn-accedi:active {
-    transform: scale(0.98);
-}
-
-/* ════════════════════════════════════════════════════════════
-   LAYOUT APPLICAZIONE
-   ════════════════════════════════════════════════════════════ */
+/* =============================================================
+   3. LAYOUT APPLICAZIONE E NAVBAR
+   ============================================================= */
 
    .pagina-app {
     background-color: var(--colore-sfondo);
@@ -139,7 +125,14 @@
     font-size: 15px;
 }
 
-/* ── Navbar ── */
+.contenuto-principale {
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Barra di navigazione in cima — position:sticky la mantiene
+   visibile anche quando si scrolla la pagina */
 .navbar {
     background-color: var(--colore-superficie);
     border-bottom: 1px solid var(--colore-bordo);
@@ -215,254 +208,138 @@
     color: #e88080;
 }
 
-/* ── Contenuto principale ── */
-.contenuto-principale {
-    padding: 24px;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-/* ── Contatori semaforo ── */
-.contatori {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
-}
-
-.contatore {
-    background-color: var(--colore-superficie);
-    border: 1px solid var(--colore-bordo);
-    border-radius: var(--raggio-bordo);
-    padding: 10px 16px;
-    text-align: center;
-    flex: 1;
-    cursor: pointer;
-    transition: all 0.2s;
-    user-select: none;
-}
-
-.contatore:hover {
-    border-color: var(--testo-secondario);
-    transform: translateY(-1px);
-}
-
-.contatore.attivo {
-    box-shadow: 0 0 0 2px currentColor;
-}
-
-.contatore.rosso  { border-left: 4px solid #e05050; }
-.contatore.giallo { border-left: 4px solid #e0c050; }
-.contatore.verde  { border-left: 4px solid #50c080; }
-.contatore.totale { border-left: 4px solid var(--accent-blu); }
-
-.contatore.rosso.attivo  { background-color: rgba(224, 80, 80, 0.20); }
-.contatore.giallo.attivo { background-color: rgba(224, 192, 80, 0.20); }
-.contatore.verde.attivo  { background-color: rgba(80, 192, 128, 0.20); }
-.contatore.totale.attivo { background-color: rgba(46, 95, 138, 0.20); }
-
-.contatore-numero {
-    display: block;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--testo-primario);
-}
-
-.contatore-etichetta {
-    font-size: 11px;
-    color: var(--testo-secondario);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* ── Tabella ── */
-.tabella-contenitore {
-    background-color: var(--colore-superficie);
-    border: 1px solid var(--colore-bordo);
-    border-radius: var(--raggio-bordo);
-}
-
-.tabella-intestazione {
+/* Dropdown Admin nella navbar */
+.navbar-dropdown {
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--colore-bordo);
 }
 
-.tabella-titolo {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--testo-primario);
+.navbar-dropdown:hover .navbar-dropdown-menu {
+    display: block;
 }
 
-.btn-nuovo {
-    background-color: var(--accent-blu);
+.navbar-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: var(--colore-superficie);
+    border: 1px solid var(--colore-bordo);
     border-radius: var(--raggio-bordo);
-    color: white;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 7px 14px;
-    text-decoration: none;
-    transition: background-color 0.2s;
+    box-shadow: var(--ombra);
+    min-width: 160px;
+    z-index: 200;
+    padding: 4px 0;
 }
 
-.btn-nuovo:hover {
-    background-color: #3a72a8;
-}
-
-.tabella {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-.tabella thead th {
-    background-color: rgba(255, 255, 255, 0.03);
-    border-bottom: 1px solid var(--colore-bordo);
+.dropdown-link {
+    display: block;
     color: var(--testo-secondario);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    padding: 10px 16px;
-    text-align: left;
-    text-transform: uppercase;
-}
-
-.tabella tbody tr {
-    border-bottom: 1px solid var(--colore-bordo);
+    font-size: 13px;
+    padding: 8px 16px;
+    text-decoration: none;
     transition: background-color 0.15s;
 }
 
-.tabella tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.03);
-}
-
-.tabella tbody td {
-    padding: 12px 16px;
+.dropdown-link:hover {
+    background-color: rgba(255, 255, 255, 0.05);
     color: var(--testo-primario);
-    vertical-align: middle;
 }
 
-.riga-rosso  { border-left: 2px solid #e05050; }
-.riga-giallo { border-left: 2px solid #e0c050; }
-.riga-verde  { border-left: 2px solid transparent; }
-
-.id-commessa {
-    font-family: monospace;
-    font-size: 12px;
+/* Pulsante ingranaggio accesso avanzato */
+.navbar-admin-btn {
+    background: none;
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
     color: var(--testo-secondario);
-}
-
-.testo-troncato {
-    display: block;
-    max-width: 250px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.testo-vuoto {
-    color: var(--testo-secondario);
-    opacity: 0.5;
-}
-
-.data-scaduta {
-    color: #e05050;
-    font-weight: 600;
-}
-
-.badge {
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-    text-transform: uppercase;
-}
-
-.badge-urgente {
-    background-color: rgba(224, 80, 80, 0.2);
-    color: #e08080;
-}
-
-.badge-asap {
-    background-color: rgba(224, 192, 80, 0.2);
-    color: #e0c080;
-}
-
-.badge-appena-possibile {
-    background-color: rgba(80, 192, 128, 0.2);
-    color: #80c0a0;
-}
-
-.stato-badge {
-    font-size: 12px;
-    color: var(--testo-secondario);
-}
-
-.btn-dettaglio {
-    color: var(--accent-blu);
-    font-size: 12px;
-    font-weight: 500;
-    text-decoration: none;
-}
-
-.btn-dettaglio:hover {
-    text-decoration: underline;
-}
-
-.tabella-vuota {
-    padding: 48px;
-    text-align: center;
-    color: var(--testo-secondario);
+    cursor: pointer;
     font-size: 14px;
-    line-height: 2;
+    padding: 5px 9px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    line-height: 1;
 }
 
-/* ════════════════════════════════════════════════════════════
-   FORM NUOVA RICHIESTA
-   ════════════════════════════════════════════════════════════ */
+.navbar-admin-btn:hover {
+    border-color: var(--testo-secondario);
+    color: var(--testo-primario);
+}
 
-   .form-contenitore {
+/* Popup accesso avanzato */
+.popup-admin {
+    position: fixed;
+    top: 60px;
+    right: 80px;
     background-color: var(--colore-superficie);
     border: 1px solid var(--colore-bordo);
     border-radius: var(--raggio-bordo);
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 32px;
+    box-shadow: var(--ombra);
+    padding: 20px;
+    width: 280px;
+    z-index: 200;
 }
 
-.form-intestazione {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 28px;
-}
+.popup-admin.nascosto { display: none; }
 
-.form-titolo {
-    font-size: 20px;
+.popup-admin-titolo {
+    font-size: 14px;
     font-weight: 600;
     color: var(--testo-primario);
+    margin-bottom: 16px;
 }
 
-.form-sottotitolo {
+
+/* =============================================================
+   4. CAMPI FORM — condivisi tra tutte le pagine
+   ============================================================= */
+
+.campo-gruppo {
+    margin-bottom: 20px;
+}
+
+.campo-etichetta {
+    display: block;
     color: var(--testo-secondario);
     font-size: 13px;
-    margin-top: 4px;
+    font-weight: 500;
+    margin-bottom: 8px;
 }
 
-.form-errore {
-    background-color: rgba(138, 46, 46, 0.2);
-    border: 1px solid var(--accent-rosso);
-    border-radius: var(--raggio-bordo);
-    color: #e88080;
-    font-size: 14px;
-    padding: 12px 16px;
-    margin-bottom: 24px;
+.campo-opzionale {
+    color: var(--testo-secondario);
+    font-weight: 400;
+    font-size: 12px;
+    opacity: 0.7;
 }
 
 .campo-obbligatorio {
     color: #e05050;
     margin-left: 2px;
+}
+
+.campo-input,
+.campo-select {
+    width: 100%;
+    background-color: var(--colore-sfondo);
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
+    color: var(--testo-primario);
+    font-size: 14px;
+    padding: 10px 14px;
+    transition: border-color 0.2s;
+}
+
+.campo-input:focus,
+.campo-select:focus {
+    outline: none;
+    border-color: var(--accent-blu);
+}
+
+.campo-select option {
+    background-color: var(--colore-superficie);
 }
 
 .campo-textarea {
@@ -490,14 +367,42 @@
     gap: 16px;
 }
 
-.form-pulsanti {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 28px;
-    padding-top: 20px;
-    border-top: 1px solid var(--colore-bordo);
+/* Messaggi errore e successo */
+.form-errore,
+.login-errore {
+    background-color: rgba(138, 46, 46, 0.2);
+    border: 1px solid var(--accent-rosso);
+    border-radius: var(--raggio-bordo);
+    color: #e88080;
+    font-size: 14px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
 }
+
+.form-successo {
+    background-color: rgba(46, 138, 86, 0.2);
+    border: 1px solid var(--accent-verde);
+    border-radius: var(--raggio-bordo);
+    color: #80e0a0;
+    font-size: 14px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+}
+
+/* Pulsanti form */
+.btn-salva {
+    background-color: var(--accent-verde);
+    border: none;
+    border-radius: var(--raggio-bordo);
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 9px 24px;
+    transition: background-color 0.2s;
+}
+
+.btn-salva:hover { background-color: #3aaa6e; }
 
 .btn-annulla {
     background-color: transparent;
@@ -516,389 +421,112 @@
     color: var(--testo-primario);
 }
 
-.btn-salva {
-    background-color: var(--accent-verde);
-    border: none;
+/* Utilità generali */
+.mono              { font-family: monospace; }
+.centro            { text-align: center; }
+.testo-vuoto       { color: var(--testo-secondario); opacity: 0.5; }
+.testo-secondario  { color: var(--testo-secondario); }
+.data-scaduta      { color: #e05050; font-weight: 600; }
+
+/* Semaforo — pallino colorato */
+.semaforo         { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
+.semaforo-verde   { background-color: #50c080; }
+.semaforo-giallo  { background-color: #e0c050; }
+.semaforo-rosso   { background-color: #e05050; }
+
+/* =============================================================
+   5. DASHBOARD — CONTATORI AVANZAMENTO LAVORAZIONI
+   =============================================================
+   Il box "Avanzamento Lavorazioni" contiene i contatori
+   semaforo. Ogni contatore è cliccabile e filtra la tabella.
+
+   COLORI CONTATORI:
+     rosso  = Da verificare (scaduti o bloccati)
+     giallo = In scadenza (scadenza entro N giorni)
+     verde  = Programmate (tutto ok)
+     attesa = In attesa (flag in_attesa=True)
+     totale = Tutte
+
+   STATO ATTIVO:
+     La classe .attivo viene aggiunta dal JavaScript quando
+     si clicca un contatore. "Tutte" è attivo di default.
+   ============================================================= */
+
+/* Box contenitore */
+.contatori {
+    background-color: var(--colore-superficie);
+    border: 1px solid var(--colore-bordo);
     border-radius: var(--raggio-bordo);
-    color: white;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 9px 24px;
-    transition: background-color 0.2s;
-}
-
-.btn-salva:hover {
-    background-color: #3aaa6e;
-}
-
-a:visited {
-    color: inherit;
-}
-
-/* ── Semaforo ── */
-.semaforo {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-}
-
-.semaforo-verde  { background-color: #50c080; }
-.semaforo-giallo { background-color: #e0c050; }
-.semaforo-rosso  { background-color: #e05050; }
-
-/* ── Gestione utenti ── */
-.sezione-titolo {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--testo-primario);
+    padding: 12px;
     margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--colore-bordo);
 }
 
-.form-successo {
-    background-color: rgba(46, 138, 86, 0.2);
-    border: 1px solid var(--accent-verde);
+/* Titolo in cima al box */
+.contatori-titolo {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--testo-secondario);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Riga dei contatori */
+.contatori-barra {
+    display: flex;
+    gap: 6px;
+}
+
+/* Singolo contatore */
+.contatore {
+    flex: 1;
+    padding: 8px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
     border-radius: var(--raggio-bordo);
-    color: #80e0a0;
-    font-size: 14px;
-    padding: 12px 16px;
-    margin-bottom: 24px;
+    background-color: rgba(255,255,255,0.04);
+    border-left: 5px solid transparent;
 }
 
-/* ════════════════════════════════════════════════════════════
-   PAGINA DETTAGLIO COMMESSA
-   ════════════════════════════════════════════════════════════ */
+.contatore:hover { transform: translateY(-1px); }
 
-   .dettaglio-contenitore {
-    max-width: 1200px;
-    margin: 0 auto;
-}
+/* Colori barra laterale per ogni tipo */
+.contatore.rosso  { border-left-color: #e05050; }
+.contatore.giallo { border-left-color: #e0c050; }
+.contatore.verde  { border-left-color: #50c080; }
+.contatore.attesa { border-left-color: #8a6fd4; }
+.contatore.totale { border-left-color: var(--accent-blu); }
 
-.dettaglio-intestazione {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 24px;
-}
+/* Sfondo colorato quando attivo (selezionato) */
+.contatore.rosso.attivo  { background-color: rgba(224, 80, 80, 0.20); }
+.contatore.giallo.attivo { background-color: rgba(224, 192, 80, 0.20); }
+.contatore.verde.attivo  { background-color: rgba(80, 192, 128, 0.20); }
+.contatore.attesa.attivo { background-color: rgba(138, 111, 212, 0.20); }
+.contatore.totale.attivo { background-color: rgba(46, 95, 138, 0.20); }
 
-.dettaglio-breadcrumb {
-    font-size: 13px;
-    color: var(--testo-secondario);
-    margin-bottom: 6px;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.dettaglio-breadcrumb a {
-    color: var(--testo-secondario);
-    text-decoration: none;
-}
-
-.dettaglio-breadcrumb a:hover {
-    color: var(--testo-primario);
-}
-
-.dettaglio-titolo {
-    font-size: 24px;
+.contatore-numero {
+    display: block;
+    font-size: 22px;
     font-weight: 700;
     color: var(--testo-primario);
 }
 
-.dettaglio-sottotitolo {
-    color: var(--testo-secondario);
-    font-size: 14px;
-    margin-top: 4px;
-}
-
-.dettaglio-stato {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: var(--colore-superficie);
-    border: 1px solid var(--colore-bordo);
-    border-radius: var(--raggio-bordo);
-    padding: 10px 16px;
-}
-
-.dettaglio-stato-testo {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--testo-primario);
-}
-
-.dettaglio-griglia {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 16px;
-}
-
-.dettaglio-sezione {
-    background-color: var(--colore-superficie);
-    border: 1px solid var(--colore-bordo);
-    border-radius: var(--raggio-bordo);
-    padding: 20px;
-}
-
-.sezione-commerciale { border-top: 3px solid #2e5f8a; }
-.sezione-tecnico     { border-top: 3px solid #1a5c6b; }
-.sezione-stati       {
-    grid-column: 1 / -1;
-    border-top: 3px solid var(--colore-bordo);
-}
-
-.sezione-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--colore-bordo);
-}
-
-.sezione-titolo-small {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--testo-primario);
-}
-
-.sezione-badge {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.sezione-badge.editabile {
-    background-color: rgba(46, 138, 86, 0.15);
-    color: #50c080;
-}
-
-.sezione-badge.readonly {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--testo-secondario);
-}
-
-.sezione-pulsanti {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-    padding-top: 12px;
-    border-top: 1px solid var(--colore-bordo);
-}
-
-.btn-salva-sezione {
-    background-color: var(--accent-blu);
-    border: none;
-    border-radius: var(--raggio-bordo);
-    color: white;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 8px 20px;
-    transition: background-color 0.2s;
-}
-
-.btn-salva-sezione:hover {
-    background-color: #3a72a8;
-}
-
-/* Stati reparti */
-.stati-griglia {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-}
-
-.stato-reparto {
-    background-color: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--colore-bordo);
-    border-radius: var(--raggio-bordo);
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.stato-reparto-nome {
+.contatore-etichetta {
     font-size: 11px;
     color: var(--testo-secondario);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.stato-reparto-valore {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--testo-primario);
-}
-
-/* Info aggiuntive */
-.info-aggiuntive {
-    border-top: 1px solid var(--colore-bordo);
-    padding-top: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.info-riga {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-}
-
-.info-etichetta {
-    color: var(--testo-secondario);
-}
-
-.info-valore {
-    color: var(--testo-primario);
-}
-
-.mono {
-    font-family: monospace;
-}
-
-/* ── Popup admin ── */
-.navbar-admin-btn {
-    background: none;
-    border: 1px solid var(--colore-bordo);
-    border-radius: var(--raggio-bordo);
-    color: var(--testo-secondario);
-    cursor: pointer;
-    font-size: 14px;
-    padding: 5px 9px;
-    transition: all 0.2s;
-}
-
-.navbar-admin-btn:hover {
-    border-color: var(--testo-secondario);
-    color: var(--testo-primario);
-}
-
-.popup-admin {
-    position: fixed;
-    top: 60px;
-    right: 80px;
-    background-color: var(--colore-superficie);
-    border: 1px solid var(--colore-bordo);
-    border-radius: var(--raggio-bordo);
-    box-shadow: var(--ombra);
-    padding: 20px;
-    width: 280px;
-    z-index: 200;
-}
-
-.popup-admin.nascosto { display: none; }
-
-.popup-admin-titolo {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--testo-primario);
-    margin-bottom: 16px;
+    letter-spacing: 1px;
 }
 
 
-/* ── Navbar dropdown ── */
-.navbar-dropdown {
-    position: relative;
-}
+/* =============================================================
+   6. DASHBOARD — TABELLA COMMESSE
+   ============================================================= */
 
-.navbar-dropdown:hover .navbar-dropdown-menu {
-    display: block;
-}
-
-.navbar-dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: var(--colore-superficie);
-    border: 1px solid var(--colore-bordo);
-    border-radius: var(--raggio-bordo);
-    box-shadow: var(--ombra);
-    min-width: 160px;
-    z-index: 200;
-    padding: 4px 0;
-}
-
-.dropdown-link {
-    display: block;
-    color: var(--testo-secondario);
-    font-size: 13px;
-    padding: 8px 16px;
-    text-decoration: none;
-    transition: background-color 0.15s;
-}
-
-.dropdown-link:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--testo-primario);
-}
-
-/* ── Navbar dropdown ── */
-.navbar-dropdown {
-    position: relative;
-}
-
-.navbar-dropdown:hover .navbar-dropdown-menu {
-    display: block;
-}
-
-.navbar-dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: var(--colore-superficie);
-    border: 1px solid var(--colore-bordo);
-    border-radius: var(--raggio-bordo);
-    box-shadow: var(--ombra);
-    min-width: 160px;
-    z-index: 200;
-    padding: 4px 0;
-}
-
-.dropdown-link {
-    display: block;
-    color: var(--testo-secondario);
-    font-size: 13px;
-    padding: 8px 16px;
-    text-decoration: none;
-    transition: background-color 0.15s;
-}
-
-.dropdown-link:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--testo-primario);
-}
-
-.navbar-dropdown {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-/* Fix allineamento icona admin navbar */
-a.navbar-admin-btn {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    line-height: 1;
-}
-
-/* ════════════════════════════════════════════════════════════
-   DASHBOARD LAYOUT CON PANNELLO RIEPILOGO
-   ════════════════════════════════════════════════════════════ */
-
+/* Layout dashboard — tabella a sinistra, pannello a destra */
 .dashboard-layout {
     display: flex;
     gap: 16px;
@@ -907,25 +535,184 @@ a.navbar-admin-btn {
 
 .tabella-contenitore {
     flex: 1;
-    transition: all 0.3s ease;
     min-width: 0;
+    background-color: var(--colore-superficie);
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
 }
 
-.tabella-ristretta {
+/* Intestazione tabella con titolo e pulsante nuova richiesta */
+.tabella-intestazione {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--colore-bordo);
+}
+
+.tabella-titolo {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--testo-primario);
+}
+
+.btn-nuovo {
+    background-color: var(--accent-blu);
+    border-radius: var(--raggio-bordo);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 14px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.btn-nuovo:hover { background-color: #3a72a8; }
+
+/* Barra filtro testo */
+.filtri-barra {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--colore-bordo);
+    background-color: rgba(255,255,255,0.02);
+}
+
+.filtri-cerca {
     flex: 1;
+    background-color: var(--colore-sfondo);
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
+    color: var(--testo-primario);
+    font-size: 13px;
+    padding: 7px 12px;
 }
 
-.riga-commessa {
+.filtri-cerca:focus {
+    outline: none;
+    border-color: var(--accent-blu);
+}
+
+.filtri-count {
+    font-size: 12px;
+    color: var(--testo-secondario);
+    white-space: nowrap;
+}
+
+/* Tabella */
+.tabella {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.tabella thead th {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--colore-bordo);
+    color: var(--testo-secondario);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 10px 16px;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Intestazioni ordinabili — mostrano cursore pointer */
+.tabella thead th[onclick] { cursor: pointer; }
+.tabella thead th[onclick]:hover { color: var(--testo-primario); }
+
+.sort-icon {
+    font-size: 10px;
+    color: var(--testo-secondario);
+}
+
+.tabella tbody tr {
+    border-bottom: 1px solid var(--colore-bordo);
+    transition: background-color 0.15s;
     cursor: pointer;
 }
 
+.tabella tbody tr:hover { background-color: rgba(255, 255, 255, 0.03); }
+
+.tabella tbody td {
+    padding: 12px 16px;
+    color: var(--testo-primario);
+    vertical-align: middle;
+}
+
+/* Riga selezionata — evidenziata in blu */
 .riga-selezionata {
     background-color: rgba(46, 95, 138, 0.2) !important;
     border-left: 3px solid var(--accent-blu) !important;
 }
 
-/* ── Pannello riepilogo ── */
-.pannello-riepilogo {
+/* Bordo colorato per stato semaforo */
+.riga-rosso  { border-left: 2px solid #e05050; }
+.riga-giallo { border-left: 2px solid #e0c050; }
+.riga-verde  { border-left: 2px solid transparent; }
+
+.testo-troncato {
+    display: block;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Badge priorità
+   ASAP     = rosso  (entro 24h)
+   Urgente  = arancione (entro 48h)
+   Standard = verde  (entro 72h) */
+.badge {
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    text-transform: uppercase;
+}
+
+.badge-asap     { background-color: rgba(224, 60, 60, 0.25);   color: #e03c3c; }
+.badge-urgente  { background-color: rgba(224, 140, 40, 0.25);  color: #e08c28; }
+.badge-standard { background-color: rgba(60, 180, 100, 0.25);  color: #3cb464; }
+
+.stato-badge {
+    font-size: 12px;
+    color: var(--testo-secondario);
+}
+
+.btn-dettaglio {
+    color: var(--accent-blu);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-dettaglio:hover { text-decoration: underline; }
+
+.tabella-vuota {
+    padding: 48px;
+    text-align: center;
+    color: var(--testo-secondario);
+    font-size: 14px;
+    line-height: 2;
+}
+
+/* =============================================================
+   7. DASHBOARD — PANNELLO RIEPILOGO
+   =============================================================
+   Il pannello laterale mostra i dettagli della commessa
+   selezionata. È sempre visibile — quando nessuna riga è
+   selezionata mostra il placeholder.
+
+   STRUTTURA:
+     .pannello-placeholder = messaggio quando vuoto
+     #pannello-contenuto   = dati commessa (nascosto di default)
+   ============================================================= */
+
+   .pannello-riepilogo {
     width: 300px;
     min-width: 300px;
     background-color: var(--colore-superficie);
@@ -933,13 +720,31 @@ a.navbar-admin-btn {
     border-radius: var(--raggio-bordo);
     display: flex;
     flex-direction: column;
-    gap: 0;
     position: sticky;
     top: 68px;
 }
 
-.pannello-riepilogo.nascosto {
-    display: none;
+.pannello-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    color: var(--testo-secondario);
+    text-align: center;
+    height: 200px;
+}
+
+.pannello-placeholder-icona {
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+}
+
+.pannello-placeholder-testo {
+    font-size: 13px;
+    opacity: 0.6;
+    line-height: 1.5;
 }
 
 .pannello-intestazione {
@@ -1026,9 +831,7 @@ a.navbar-admin-btn {
     font-size: 13px;
 }
 
-.pannello-etichetta {
-    color: var(--testo-secondario);
-}
+.pannello-etichetta { color: var(--testo-secondario); }
 
 .pannello-valore {
     color: var(--testo-primario);
@@ -1037,9 +840,7 @@ a.navbar-admin-btn {
     max-width: 160px;
 }
 
-.pannello-valore.small {
-    font-size: 12px;
-}
+.pannello-valore.small { font-size: 12px; }
 
 .pannello-note {
     font-size: 13px;
@@ -1069,83 +870,254 @@ a.navbar-admin-btn {
     transition: background-color 0.2s;
 }
 
-.btn-apri-dettaglio:hover {
-    background-color: #3a72a8;
-}
+.btn-apri-dettaglio:hover { background-color: #3a72a8; }
 
-/* ── Pannello placeholder ── */
-.pannello-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    color: var(--testo-secondario);
-    text-align: center;
-    height: 200px;
-}
 
-.pannello-placeholder-icona {
-    font-size: 32px;
-    margin-bottom: 12px;
-    opacity: 0.4;
-}
+/* =============================================================
+   8. FORM NUOVA RICHIESTA
+   ============================================================= */
 
-.pannello-placeholder-testo {
-    font-size: 13px;
-    opacity: 0.6;
-    line-height: 1.5;
-}
-
-/* ── Barra filtri ── */
-.filtri-barra {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--colore-bordo);
-    background-color: rgba(255,255,255,0.02);
-}
-
-.filtri-cerca {
-    flex: 1;
-    background-color: var(--colore-sfondo);
+.form-contenitore {
+    background-color: var(--colore-superficie);
     border: 1px solid var(--colore-bordo);
     border-radius: var(--raggio-bordo);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px;
+}
+
+.form-intestazione {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+}
+
+.form-titolo {
+    font-size: 20px;
+    font-weight: 600;
     color: var(--testo-primario);
+}
+
+.form-sottotitolo {
+    color: var(--testo-secondario);
     font-size: 13px;
-    padding: 7px 12px;
+    margin-top: 4px;
 }
 
-.filtri-cerca:focus {
-    outline: none;
-    border-color: var(--accent-blu);
+.form-pulsanti {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--colore-bordo);
 }
 
-.filtri-count {
-    font-size: 12px;
+
+/* =============================================================
+   9. PAGINA DETTAGLIO COMMESSA
+   ============================================================= */
+
+.dettaglio-contenitore {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.dettaglio-intestazione {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.dettaglio-breadcrumb {
+    font-size: 13px;
     color: var(--testo-secondario);
-    white-space: nowrap;
+    margin-bottom: 6px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
 
-.contatore.attesa { border-left: 4px solid #8a6fd4; }
-.contatore.attesa.attivo { background-color: rgba(138, 111, 212, 0.12); }
-
-.sort-icon {
-    font-size: 10px;
+.dettaglio-breadcrumb a {
     color: var(--testo-secondario);
+    text-decoration: none;
 }
 
-.tabella thead th:hover {
+.dettaglio-breadcrumb a:hover { color: var(--testo-primario); }
+
+.dettaglio-titolo {
+    font-size: 24px;
+    font-weight: 700;
     color: var(--testo-primario);
 }
 
-/* ════════════════════════════════════════════════════════════
-   PAGINA DATABASE ADMIN
-   ════════════════════════════════════════════════════════════ */
+.dettaglio-sottotitolo {
+    color: var(--testo-secondario);
+    font-size: 14px;
+    margin-top: 4px;
+}
 
-/* Intestazione pagina */
-.pagina-intestazione {
+.dettaglio-stato {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--colore-superficie);
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
+    padding: 10px 16px;
+}
+
+.dettaglio-stato-testo {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--testo-primario);
+}
+
+/* Griglia sezioni — Commerciale e Tecnico affiancati,
+   Stati reparti su tutta la larghezza sotto */
+.dettaglio-griglia {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.dettaglio-sezione {
+    background-color: var(--colore-superficie);
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
+    padding: 20px;
+}
+
+/* Bordo colorato in cima ad ogni sezione per identificare il reparto */
+.sezione-commerciale { border-top: 3px solid #2e5f8a; }
+.sezione-tecnico     { border-top: 3px solid #1a5c6b; }
+.sezione-stati       {
+    grid-column: 1 / -1;
+    border-top: 3px solid var(--colore-bordo);
+}
+
+.sezione-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--colore-bordo);
+}
+
+.sezione-titolo-small {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--testo-primario);
+}
+
+.sezione-titolo {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--testo-primario);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--colore-bordo);
+}
+
+/* Badge modificabile / sola lettura */
+.sezione-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sezione-badge.editabile {
+    background-color: rgba(46, 138, 86, 0.15);
+    color: #50c080;
+}
+
+.sezione-badge.readonly {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--testo-secondario);
+}
+
+.sezione-pulsanti {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--colore-bordo);
+}
+
+.btn-salva-sezione {
+    background-color: var(--accent-blu);
+    border: none;
+    border-radius: var(--raggio-bordo);
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 20px;
+    transition: background-color 0.2s;
+}
+
+.btn-salva-sezione:hover { background-color: #3a72a8; }
+
+/* Griglia stati reparti — 3 colonne */
+.stati-griglia {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stato-reparto {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--colore-bordo);
+    border-radius: var(--raggio-bordo);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.stato-reparto-nome {
+    font-size: 11px;
+    color: var(--testo-secondario);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stato-reparto-valore {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--testo-primario);
+}
+
+/* Info aggiuntive sotto gli stati */
+.info-aggiuntive {
+    border-top: 1px solid var(--colore-bordo);
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.info-riga {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.info-etichetta { color: var(--testo-secondario); }
+.info-valore    { color: var(--testo-primario); }
+
+/* =============================================================
+   10. GESTIONE UTENTI ADMIN
+   ============================================================= */
+
+   .pagina-intestazione {
     margin-bottom: 20px;
 }
 
@@ -1161,13 +1133,23 @@ a.navbar-admin-btn {
     color: var(--testo-secondario);
 }
 
-/* Tab navigation — i pulsanti in cima */
+
+/* =============================================================
+   11. PAGINA DATABASE ADMIN
+   =============================================================
+   Mostra il contenuto di tutte le tabelle del database
+   organizzato in 4 tab: Commesse, Utenti, Log, Configurazione.
+
+   I tab funzionano con JavaScript — la classe .attivo
+   mostra il contenuto, la sua assenza lo nasconde.
+   ============================================================= */
+
+/* Tab navigation */
 .db-tab-nav {
     display: flex;
     gap: 4px;
     margin-bottom: 16px;
     border-bottom: 1px solid var(--colore-bordo);
-    padding-bottom: 0;
 }
 
 .db-tab-btn {
@@ -1183,9 +1165,7 @@ a.navbar-admin-btn {
     transition: all 0.2s;
 }
 
-.db-tab-btn:hover {
-    color: var(--testo-primario);
-}
+.db-tab-btn:hover { color: var(--testo-primario); }
 
 .db-tab-btn.attivo {
     border-bottom-color: var(--accent-blu);
@@ -1202,13 +1182,8 @@ a.navbar-admin-btn {
 }
 
 /* Contenuto tab — nascosto di default, visibile se .attivo */
-.db-tab-contenuto {
-    display: none;
-}
-
-.db-tab-contenuto.attivo {
-    display: block;
-}
+.db-tab-contenuto        { display: none; }
+.db-tab-contenuto.attivo { display: block; }
 
 /* Wrapper con scroll orizzontale per tabelle larghe */
 .db-tabella-wrapper {
@@ -1244,13 +1219,8 @@ a.navbar-admin-btn {
     white-space: nowrap;
 }
 
-.db-tabella tr:last-child td {
-    border-bottom: none;
-}
-
-.db-tabella tr:hover td {
-    background-color: rgba(255,255,255,0.03);
-}
+.db-tabella tr:last-child td { border-bottom: none; }
+.db-tabella tr:hover td      { background-color: rgba(255,255,255,0.03); }
 
 /* Righe speciali */
 .riga-storico td   { opacity: 0.5; }
@@ -1266,9 +1236,9 @@ a.navbar-admin-btn {
     text-transform: uppercase;
 }
 
-.badge-attivo     { background-color: rgba(80,192,128,0.2); color: #50c080; }
-.badge-modificato { background-color: rgba(224,192,80,0.2); color: #e0c050; }
-.badge-annullato  { background-color: rgba(224,80,80,0.2);  color: #e05050; }
+.badge-attivo     { background-color: rgba(80,192,128,0.2);  color: #50c080; }
+.badge-modificato { background-color: rgba(224,192,80,0.2);  color: #e0c050; }
+.badge-annullato  { background-color: rgba(224,80,80,0.2);   color: #e05050; }
 
 /* Badge azione log */
 .badge-azione {
@@ -1280,165 +1250,12 @@ a.navbar-admin-btn {
     padding: 2px 6px;
 }
 
-/* Utilità */
-.mono   { font-family: monospace; }
-.centro { text-align: center; }
 
-/* ── Titolo barra avanzamento ── */
-.contatori {
-    margin-bottom: 16px;
+/* ── Scroll orizzontale tabella commesse ── */
+.tabella-contenitore {
+    overflow-x: auto;
 }
 
-.contatori-titolo {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--testo-secondario);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
+.tabella {
+    min-width: 600px;
 }
-
-.contatori-barra {
-    display: flex;
-    gap: 10px;
-}
-
-/* ── Fix barra avanzamento ── */
-.contatori {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.contatori-titolo {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--testo-secondario);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    white-space: nowrap;
-}
-
-.contatori-barra {
-    display: flex;
-    gap: 6px;
-    flex: 1;
-}
-
-.contatore {
-    flex: 1;
-    padding: 8px 12px;
-    border-left: none;
-    border-top: 3px solid transparent;
-}
-
-.contatore.rosso  { border-top-color: #e05050; }
-.contatore.giallo { border-top-color: #e0c050; }
-.contatore.verde  { border-top-color: #50c080; }
-.contatore.attesa { border-top-color: #8a6fd4; }
-.contatore.totale { border-top-color: var(--accent-blu); }
-
-.contatore-numero {
-    font-size: 20px;
-}
-
-/* ── Fix barra avanzamento v3 ── */
-.contatori {
-    display: block;
-    margin-bottom: 16px;
-}
-
-.contatori-titolo {
-    background-color: rgba(255,255,255,0.05);
-    border-radius: 6px 6px 0 0;
-    color: var(--testo-secondario);
-    display: block;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    padding: 6px 12px;
-    text-align: center;
-    text-transform: uppercase;
-    writing-mode: horizontal-tb;
-    transform: none;
-}
-
-.contatori-barra {
-    display: flex;
-    gap: 6px;
-}
-
-.contatore {
-    flex: 1;
-    padding: 8px 12px;
-    border-top: none;
-    border-left: 5px solid transparent;
-}
-
-.contatore.rosso  { border-left-color: #e05050; }
-.contatore.giallo { border-left-color: #e0c050; }
-.contatore.verde  { border-left-color: #50c080; }
-.contatore.attesa { border-left-color: #8a6fd4; }
-.contatore.totale { border-left-color: var(--accent-blu); }
-
-/* ── Badge priorità ── */
-.badge-asap     { background-color: rgba(224, 60, 60, 0.25); color: #e03c3c; }
-.badge-urgente  { background-color: rgba(224, 140, 40, 0.25); color: #e08c28; }
-.badge-standard { background-color: rgba(60, 180, 100, 0.25); color: #3cb464; }
-
-/* ── Box avanzamento lavorazioni v4 ── */
-/* Contenitore generale — box con bordo */
-.contatori {
-    background-color: var(--colore-superficie);
-    border: 1px solid var(--colore-bordo);
-    border-radius: var(--raggio-bordo);
-    padding: 12px;
-    margin-bottom: 16px;
-    display: block;
-}
-
-/* Titolo in cima al box */
-.contatori-titolo {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--testo-secondario);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    text-align: center;
-    margin-bottom: 10px;
-    writing-mode: horizontal-tb;
-    transform: none;
-}
-
-/* Riga dei contatori dentro il box */
-.contatori-barra {
-    display: flex;
-    gap: 6px;
-}
-
-/* Singolo contatore */
-.contatore {
-    flex: 1;
-    padding: 8px 12px;
-    border-top: none;
-    border-left: 5px solid transparent;
-    background-color: var(--colore-sfondo);
-    border-radius: var(--raggio-bordo);
-}
-
-/* ── Fix contatori ── */
-.contatore {
-    background-color: rgba(255,255,255,0.04);
-}
-
-.contatore.rosso.attivo  { background-color: rgba(224, 80, 80, 0.20); }
-.contatore.giallo.attivo { background-color: rgba(224, 192, 80, 0.20); }
-.contatore.verde.attivo  { background-color: rgba(80, 192, 128, 0.20); }
-.contatore.attesa.attivo { background-color: rgba(138, 111, 212, 0.20); }
-.contatore.totale.attivo { background-color: rgba(46, 95, 138, 0.20); }
-
-/* ── Fix contatore attesa attivo ── */
-.contatore.attesa.attivo { background-color: rgba(138, 111, 212, 0.20); }

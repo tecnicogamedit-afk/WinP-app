@@ -17,7 +17,7 @@
         </div>
         <div class="contatore verde" onclick="filtraStato('VERDE', this)">
             <span class="contatore-numero">{{ contatori.verde }}</span>
-            <span class="contatore-etichetta">Programmate</span>
+            <span class="contatore-etichetta">Programmato</span>
         </div>
         <div class="contatore attesa" onclick="filtraStato('ATTESA', this)">
             <span class="contatore-numero">{{ contatori.attesa }}</span>
@@ -59,7 +59,7 @@
                     <th class="col-cliente" onclick="ordinaPer('cliente')" style="cursor:pointer;">Cliente <span class="sort-icon" id="sort-cliente"></span></th>
                     <th class="col-descr">Descrizione</th>
                     <th class="col-data" onclick="ordinaPer('scadenza')" style="cursor:pointer;">Scadenza <span class="sort-icon" id="sort-scadenza"></span></th>
-                    <th class="col-priorita" onclick="ordinaPer('priorita')" style="cursor:pointer;">Priorita <span class="sort-icon" id="sort-priorita"></span></th>
+                    <th class="col-priorita" onclick="ordinaPer('priorita')" style="cursor:pointer;">Priorità <span class="sort-icon" id="sort-priorita"></span></th>
                     <th class="col-stato-co">Stato Richiesta</th>
                     {% if session.get("reparto") in ["Tecnico", "Amministratore"] %}
                     <th class="col-preventivo">Preventivo</th>
@@ -164,8 +164,8 @@
 
             <div class="pannello-sezione">
                 <div class="pannello-riga">
-                    <span class="pannello-etichetta">Priorita</span>
-                    <span class="pannello-valore" id="riepilogo-priorita"></span>
+                    <span class="pannello-etichetta">Priorità</span>
+                    <span class="badge" id="riepilogo-priorita"></span>
                 </div>
                 <div class="pannello-riga">
                     <span class="pannello-etichetta">Stato</span>
@@ -303,7 +303,7 @@ function ordinaPer(colonna) {
     var tbody = document.getElementById('tabella-body');
     var righe = Array.from(tbody.querySelectorAll('.riga-commessa'));
 
-    var prioritaOrdine = {'Urgente': 1, 'ASAP': 2, 'Appena possibile': 3, '': 4};
+    var prioritaOrdine = {'ASAP': 1, 'Urgente': 2, 'Standard': 3, '': 4};
     var statoOrdine    = {'ROSSO': 1, 'GIALLO': 2, 'VERDE': 3};
 
     righe.sort(function(a, b) {
@@ -339,8 +339,6 @@ function apriRiepilogo(riga) {
     document.getElementById('riepilogo-id').textContent = d.id;
     document.getElementById('riepilogo-cliente').textContent = d.cliente || '—';
     document.getElementById('riepilogo-descrizione').textContent = d.descrizione || '—';
-    document.getElementById('riepilogo-stato').textContent = d.stato || '—';
-    document.getElementById('riepilogo-priorita').textContent = d.priorita || '—';
     document.getElementById('riepilogo-stato-co').textContent = d.statoCo || '—';
     document.getElementById('riepilogo-in-attesa').textContent = d.inAttesa === '1' ? 'Si' : 'No';
     document.getElementById('riepilogo-consegna').textContent = d.consegna || '—';
@@ -354,6 +352,16 @@ function apriRiepilogo(riga) {
     document.getElementById('riepilogo-stato-st').textContent = d.statoSt || '—';
     document.getElementById('riepilogo-stato-le').textContent = d.statoLe || '—';
     document.getElementById('riepilogo-stato-lg').textContent = d.statoLg || '—';
+
+    var nomiStato = {'ROSSO': 'Da verificare', 'GIALLO': 'In scadenza', 'VERDE': 'Programmato'};
+    var coloriStato = {'ROSSO': '#e05050', 'GIALLO': '#e0c050', 'VERDE': '#50c080'};
+    var statoEl = document.getElementById('riepilogo-stato');
+    statoEl.textContent = nomiStato[d.stato] || d.stato || '—';
+    statoEl.style.color = coloriStato[d.stato] || '';   
+
+    var prEl = document.getElementById('riepilogo-priorita');
+    prEl.textContent = d.priorita || '—';
+    prEl.className = d.priorita ? 'badge badge-' + d.priorita.toLowerCase() : '';   
 
     var sem = document.getElementById('riepilogo-semaforo');
     sem.className = 'semaforo semaforo-' + (d.stato || 'verde').toLowerCase();
