@@ -266,6 +266,9 @@ def aggiorna_commessa(commessa_id):
         data_tass = request.form.get('data_tassativa_co', '')
         commessa.data_tassativa = datetime.strptime(data_tass, '%Y-%m-%d').date() if data_tass else None
 
+        data_invio = request.form.get('data_invio_quotazione', '')
+        commessa.data_invio_quotazione = datetime.strptime(data_invio, '%Y-%m-%d').date() if data_invio else None
+
     elif sezione == 'tecnico' and          session.get('reparto') in ['Tecnico', 'Amministratore']:
 
         commessa.num_preventivo = request.form.get('num_preventivo', '').strip() or None

@@ -132,6 +132,8 @@ class Commessa(db.Model):
     data_quotazione = db.Column(db.Date)
     riscontro       = db.Column(db.String(50))
     # Confermata / Non confermata / Variante
+    data_invio_quotazione = db.Column(db.Date)
+    # Data in cui il Commerciale invia effettivamente la richiesta al cliente
     num_commessa    = db.Column(db.String(50))
     data_tassativa  = db.Column(db.Date)
 

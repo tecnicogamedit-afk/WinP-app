@@ -70,16 +70,16 @@
 
                 <div class="campo-riga">
                     <div class="campo-gruppo">
-                        <label class="campo-etichetta">Data consegna richiesta</label>
+                        <label class="campo-etichetta">Data invio quotazione</label>
                         <input class="campo-input"
                                type="date"
-                               name="data_consegna"
-                               value="{{ commessa.data_consegna.strftime('%Y-%m-%d') if commessa.data_consegna else '' }}"
+                               name="data_invio_quotazione"
+                               value="{{ commessa.data_invio_quotazione.strftime('%Y-%m-%d') if commessa.data_invio_quotazione else '' }}"
                                {{ 'readonly' if session.get('reparto') not in ['Commerciale', 'Amministratore'] }}>
                     </div>
-
+                
                     <div class="campo-gruppo">
-                        <label class="campo-etichetta">Data tassativa</label>
+                        <label class="campo-etichetta">Consegna</label>
                         <input class="campo-input"
                                type="date"
                                name="data_tassativa_co"

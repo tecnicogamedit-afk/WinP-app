@@ -78,8 +78,7 @@
                     data-priorita="{{ commessa.priorita or "" }}"
                     data-scadenza="{{ commessa.data_tassativa.strftime("%Y-%m-%d") if commessa.data_tassativa else "" }}"
                     data-scadenza-display="{{ commessa.data_tassativa.strftime("%d/%m/%Y") if commessa.data_tassativa else "" }}"
-                    data-consegna="{{ commessa.data_consegna.strftime("%d/%m/%Y") if commessa.data_consegna else "" }}"
-                    data-creata="{{ commessa.creata_il.strftime("%Y-%m-%d") if commessa.creata_il else "" }}"
+                    data-consegna="{{ commessa.data_invio_quotazione.strftime("%d/%m/%Y") if commessa.data_invio_quotazione else "" }}"                    data-creata="{{ commessa.creata_il.strftime("%Y-%m-%d") if commessa.creata_il else "" }}"
                     data-stato-co="{{ commessa.stato_co or "" }}"
                     data-preventivo="{{ commessa.num_preventivo or "" }}"
                     data-commessa="{{ commessa.num_commessa or "" }}"
@@ -176,11 +175,11 @@
                     <span class="pannello-valore" id="riepilogo-in-attesa"></span>
                 </div>
                 <div class="pannello-riga">
-                    <span class="pannello-etichetta">Consegna richiesta</span>
+                    <span class="pannello-etichetta">Invio quotazione</span>
                     <span class="pannello-valore" id="riepilogo-consegna"></span>
                 </div>
                 <div class="pannello-riga">
-                    <span class="pannello-etichetta">Data tassativa</span>
+                    <span class="pannello-etichetta">Consegna</span>
                     <span class="pannello-valore" id="riepilogo-scadenza"></span>
                 </div>
             </div>
