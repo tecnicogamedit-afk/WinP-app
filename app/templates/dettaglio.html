@@ -23,14 +23,14 @@
         <div class="dettaglio-stato">
             <span class="semaforo semaforo-{{ commessa.stato_globale | lower }}"
                   style="width: 16px; height: 16px;"></span>
-                  <span class="dettaglio-stato-testo" style="color:
+            <span class="dettaglio-stato-testo" style="color:
                   {% if commessa.stato_globale == 'ROSSO' %}#e05050
                   {% elif commessa.stato_globale == 'GIALLO' %}#e0c050
                   {% else %}#50c080{% endif %}">
                   {% if commessa.stato_globale == 'ROSSO' %}Da verificare
                   {% elif commessa.stato_globale == 'GIALLO' %}In scadenza
                   {% else %}Programmato{% endif %}
-              </span>
+            </span>
         </div>
     </div>
 

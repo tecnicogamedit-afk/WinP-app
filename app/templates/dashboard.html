@@ -58,7 +58,7 @@
                     <th class="col-data">Richiesta</th>
                     <th class="col-cliente" onclick="ordinaPer('cliente')" style="cursor:pointer;">Cliente <span class="sort-icon" id="sort-cliente"></span></th>
                     <th class="col-descr">Descrizione</th>
-                    <th class="col-data" onclick="ordinaPer('scadenza')" style="cursor:pointer;">Scadenza <span class="sort-icon" id="sort-scadenza"></span></th>
+                    <th class="col-data" onclick="ordinaPer('scadenza')" style="cursor:pointer;">Consegna <span class="sort-icon" id="sort-scadenza"></span></th>
                     <th class="col-priorita" onclick="ordinaPer('priorita')" style="cursor:pointer;">Priorità <span class="sort-icon" id="sort-priorita"></span></th>
                     <th class="col-stato-co">Stato Richiesta</th>
                     {% if session.get("reparto") in ["Tecnico", "Amministratore"] %}
@@ -109,7 +109,7 @@
                         <span class="data {% if commessa.stato_globale == "ROSSO" %}data-scaduta{% endif %}">
                             {{ commessa.data_tassativa.strftime("%d/%m/%y") }}
                         </span>
-                        {% else %}<span class="testo-vuoto">—</span>{% endif %}
+                        {% else %}<span class="data-mancante" title="Data consegna non inserita">!</span>{% endif %}
                     </td>
                     <td class="col-priorita">
                         {% if commessa.priorita %}

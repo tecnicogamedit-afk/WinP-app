@@ -1,4 +1,15 @@
 {% extends "base.html" %}
+<!--
+    nuova_richiesta.html — Form per creare una nuova richiesta di quotazione.
+    Accessibile solo al reparto Commerciale e Amministratore.
+    
+    CAMPI OBBLIGATORI: cliente, descrizione, data_richiesta
+    CAMPI FACOLTATIVI: data_consegna, priorita, note_co
+    
+    Dopo il salvataggio torna alla dashboard.
+    Il campo data_richiesta viene precompilato con la data di oggi
+    tramite JavaScript ma è modificabile dall'utente.
+-->
 
 {% block titolo %}WinP — Nuova richiesta{% endblock %}
 
@@ -6,7 +17,6 @@
 
 <div class="form-contenitore">
 
-    <!-- ── Intestazione ── -->
     <div class="form-intestazione">
         <div>
             <h1 class="form-titolo">Nuova richiesta di quotazione</h1>
@@ -19,17 +29,13 @@
         </a>
     </div>
 
-    <!-- ── Messaggi di errore ── -->
     {% if errore %}
-    <div class="form-errore">
-        {{ errore }}
-    </div>
+    <div class="form-errore">{{ errore }}</div>
     {% endif %}
 
-    <!-- ── Form ── -->
     <form action="" method="POST">
 
-        <!-- Cliente -->
+        <!-- Cliente — obbligatorio -->
         <div class="campo-gruppo">
             <label class="campo-etichetta" for="cliente">
                 Cliente <span class="campo-obbligatorio">*</span>
@@ -43,7 +49,7 @@
                    required>
         </div>
 
-        <!-- Descrizione lavoro -->
+        <!-- Descrizione lavoro — obbligatoria -->
         <div class="campo-gruppo">
             <label class="campo-etichetta" for="descrizione">
                 Descrizione lavoro <span class="campo-obbligatorio">*</span>
@@ -56,13 +62,26 @@
                       required>{{ form.descrizione if form else '' }}</textarea>
         </div>
 
-        <!-- Data consegna richiesta e Priorità — sulla stessa riga -->
+        <!-- Data richiesta e Data consegna — sulla stessa riga -->
         <div class="campo-riga">
 
+            <!-- Data richiesta — obbligatoria, precompilata con oggi -->
+            <div class="campo-gruppo">
+                <label class="campo-etichetta" for="data_richiesta">
+                    Data richiesta <span class="campo-obbligatorio">*</span>
+                </label>
+                <input class="campo-input"
+                       type="date"
+                       id="data_richiesta"
+                       name="data_richiesta"
+                       value="{{ form.data_richiesta if form else '' }}"
+                       required>
+            </div>
+
+            <!-- Data consegna — facoltativa, segnalata se mancante -->
             <div class="campo-gruppo">
                 <label class="campo-etichetta" for="data_consegna">
-                    Data consegna richiesta
-                    <span class="campo-opzionale">(opzionale)</span>
+                    Data consegna
                 </label>
                 <input class="campo-input"
                        type="date"
@@ -71,37 +90,36 @@
                        value="{{ form.data_consegna if form else '' }}">
             </div>
 
-            <div class="campo-gruppo">
-                <label class="campo-etichetta" for="priorita">
-                    Priorità quotazione
-                    <span class="campo-opzionale">(opzionale)</span>
-                </label>
-                <select class="campo-select"
-                        id="priorita"
-                        name="priorita">
-                    <option value="">— Nessuna —</option>
-                    <option value="ASAP"
-                        {{ 'selected' if form and form.priorita == 'ASAP' }}>
-                        ASAP
-                    </option>
-                    <option value="Urgente"
-                        {{ 'selected' if form and form.priorita == 'Urgente' }}>
-                        Urgente
-                    </option>
-                    <option value="Standard"
-                        {{ 'selected' if form and form.priorita == 'Standard' }}>
-                        Standard
-                    </option>
-                </select>
-            </div>
+        </div>
 
+        <!-- Priorità -->
+        <div class="campo-gruppo">
+            <label class="campo-etichetta" for="priorita">
+                Priorità
+            </label>
+            <select class="campo-select"
+                    id="priorita"
+                    name="priorita">
+                <option value="">— Nessuna —</option>
+                <option value="ASAP"
+                    {{ 'selected' if form and form.priorita == 'ASAP' }}>
+                    ASAP (entro 24h)
+                </option>
+                <option value="Urgente"
+                    {{ 'selected' if form and form.priorita == 'Urgente' }}>
+                    Urgente (entro 48h)
+                </option>
+                <option value="Standard"
+                    {{ 'selected' if form and form.priorita == 'Standard' }}>
+                    Standard (entro 72h)
+                </option>
+            </select>
         </div>
 
         <!-- Note commerciale -->
         <div class="campo-gruppo">
             <label class="campo-etichetta" for="note_co">
                 Note commerciale
-                <span class="campo-opzionale">(opzionale)</span>
             </label>
             <textarea class="campo-textarea"
                       id="note_co"
@@ -110,7 +128,6 @@
                       placeholder="Note interne per il reparto Tecnico">{{ form.note_co if form else '' }}</textarea>
         </div>
 
-        <!-- Pulsanti -->
         <div class="form-pulsanti">
             <a href="{{ url_for('main.dashboard') }}" class="btn-annulla">
                 Annulla
@@ -124,4 +141,18 @@
 
 </div>
 
+<!--
+    Precompila la data richiesta con oggi se il campo è vuoto.
+    new Date().toISOString().split('T')[0] = data nel formato YYYY-MM-DD
+    richiesto dall'input type="date"
+-->
+<script>
+var campoData = document.getElementById('data_richiesta');
+if (!campoData.value) {
+    campoData.value = new Date().toISOString().split('T')[0];
+}
+</script>
+
 {% endblock %}
+
+

@@ -161,6 +161,7 @@ def nuova_richiesta():
     if request.method == 'POST':
         cliente     = request.form.get('cliente', '').strip()
         descrizione = request.form.get('descrizione', '').strip()
+        data_rich   = request.form.get('data_richiesta', '')
         data_cons   = request.form.get('data_consegna', '')
         priorita    = request.form.get('priorita', '')
         note_co     = request.form.get('note_co', '').strip()
@@ -169,7 +170,10 @@ def nuova_richiesta():
             errore = 'Il campo Cliente e\' obbligatorio.'
         elif not descrizione:
             errore = 'Il campo Descrizione e\' obbligatorio.'
+        elif not data_rich:
+            errore = 'Il campo Data richiesta e\' obbligatorio.'
         else:
+            # Genera ID commessa automatico formato AAMMXXX
             oggi     = date.today()
             prefisso = oggi.strftime('%y%m')
             count    = Commessa.query.filter(
@@ -182,7 +186,7 @@ def nuova_richiesta():
                 versione       = 1,
                 stato_record   = 'ATTIVO',
                 stato_globale  = 'VERDE',
-                data_richiesta = oggi,
+                data_richiesta = datetime.strptime(data_rich, '%Y-%m-%d').date(),
                 cliente        = cliente,
                 descrizione    = descrizione,
                 priorita       = priorita or None,
