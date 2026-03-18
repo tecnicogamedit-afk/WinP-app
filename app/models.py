@@ -101,6 +101,21 @@ class Commessa(db.Model):
     # Solo l'admin può forzare manualmente lo stato globale
     override_flag   = db.Column(db.Boolean, default=False)
     in_attesa       = db.Column(db.Boolean, default=False)
+
+    # ---------------------------------------------------------
+    # REPARTI COINVOLTI
+    # Indica quali reparti sono coinvolti nella lavorazione.
+    # Impostati dal Tecnico quando crea la commessa.
+    # Usati per filtrare la dashboard per reparto.
+    # Commerciale e Tecnico vedono sempre tutto.
+    # ---------------------------------------------------------
+    coinvolto_co = db.Column(db.Boolean, default=True)
+    coinvolto_gr = db.Column(db.Boolean, default=False)
+    coinvolto_st = db.Column(db.Boolean, default=False)
+    coinvolto_le = db.Column(db.Boolean, default=False)
+    coinvolto_ex = db.Column(db.Boolean, default=False)
+    coinvolto_lg = db.Column(db.Boolean, default=False)
+    
     override_da     = db.Column(db.String(100))
     override_data   = db.Column(db.DateTime)
 

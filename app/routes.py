@@ -118,9 +118,28 @@ def dashboard():
     if 'utente_id' not in session:
         return redirect(url_for('main.login'))
 
-    commesse = Commessa.query.filter_by(
-        stato_record='ATTIVO'
-    ).order_by(Commessa.ultima_modifica.desc()).all()
+    # Filtra le commesse in base al reparto dell'utente
+    # Commerciale e Tecnico vedono tutto
+    # Utente avanzato vede tutto
+    # Gli altri reparti vedono solo le commesse dove sono coinvolti
+    reparto = session.get('reparto')
+    livello = session.get('livello')
+
+    query = Commessa.query.filter_by(stato_record='ATTIVO')
+
+    if livello == 'avanzato' or reparto in ['Amministratore', 'Tecnico', 'Commerciale']:
+        # Nessun filtro — vede tutto
+        pass
+    elif reparto == 'Grafica':
+        query = query.filter_by(coinvolto_gr=True)
+    elif reparto == 'Produzione':
+        query = query.filter_by(coinvolto_st=True)
+    elif reparto == 'Legatoria':
+        query = query.filter_by(coinvolto_le=True)
+    elif reparto == 'Logistica':
+        query = query.filter_by(coinvolto_lg=True)
+
+    commesse = query.order_by(Commessa.ultima_modifica.desc()).all()
 
     contatori = {
         'rosso':  sum(1 for c in commesse if c.stato_globale == 'ROSSO'),
