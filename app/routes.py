@@ -118,26 +118,17 @@ def dashboard():
     if 'utente_id' not in session:
         return redirect(url_for('main.login'))
 
-    # Filtra le commesse in base al reparto dell'utente
-    # Commerciale e Tecnico vedono tutto
-    # Utente avanzato vede tutto
-    # Gli altri reparti vedono solo le commesse dove sono coinvolti
     reparto = session.get('reparto')
     livello = session.get('livello')
 
+   
+    # Filtra le commesse in base al reparto
     query = Commessa.query.filter_by(stato_record='ATTIVO')
 
     if livello == 'avanzato' or reparto in ['Amministratore', 'Tecnico', 'Commerciale']:
-        # Nessun filtro — vede tutto
         pass
-    elif reparto == 'Grafica':
-        query = query.filter_by(coinvolto_gr=True)
-    elif reparto == 'Produzione':
-        query = query.filter_by(coinvolto_st=True)
-    elif reparto == 'Legatoria':
-        query = query.filter_by(coinvolto_le=True)
-    elif reparto == 'Logistica':
-        query = query.filter_by(coinvolto_lg=True)
+    else:
+        query = query.filter(Commessa.num_commessa.isnot(None))
 
     commesse = query.order_by(Commessa.ultima_modifica.desc()).all()
 
@@ -150,6 +141,7 @@ def dashboard():
     }
 
     return render_template('dashboard.html', commesse=commesse, contatori=contatori)
+
 
 # =============================================================
 # NUOVA RICHIESTA DI QUOTAZIONE
@@ -518,3 +510,8 @@ def admin_database():
                            utenti=utenti,
                            log_azioni=log_azioni,
                            configurazione=configurazione)
+
+
+
+
+

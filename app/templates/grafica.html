@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+<!--
+    grafica.html — Dashboard reparto Grafica
+    Mostra le commesse ordinate per priorità reparto.
+    
+    COLONNE:
+    - Stato semaforo
+    - N. Commessa
+    - Cliente / Descrizione
+    - Consegna
+    - Priorità reparto (numero + colore)
+    - Lavorazione in corso
+    - Lavorazione successiva
+    - Note
+-->
+
+{% block titolo %}WinP — Grafica{% endblock %}
+
+{% block contenuto %}
+
+<div class="pagina-intestazione">
+    <h1 class="pagina-titolo">Reparto Grafica</h1>
+    <p class="pagina-sottotitolo">Commesse in lavorazione — ordinate per priorità</p>
+</div>
+
+{% if commesse %}
+<div class="tabella-contenitore">
+    <table class="tabella">
+        <thead>
+            <tr>
+                <th class="col-stato">Stato</th>
+                <th class="col-id">N. Comm.</th>
+                <th class="col-cliente">Cliente</th>
+                <th class="col-descr">Descrizione</th>
+                <th class="col-data">Consegna</th>
+                <th class="col-priorita-rep">Priorità</th>
+                <th class="col-lav-corso">In lavorazione</th>
+                <th class="col-lav-succ">Successiva</th>
+                <th class="col-note">Note</th>
+                <th class="col-azioni"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for commessa in commesse %}
+            <tr class="riga-commessa riga-{{ commessa.stato_globale | lower }}">
+
+                <!-- Stato semaforo -->
+                <td class="col-stato">
+                    <span class="semaforo semaforo-{{ commessa.stato_globale | lower }}"></span>
+                </td>
+
+                <!-- N. Commessa -->
+                <td class="col-id">
+                    <span class="mono">{{ commessa.num_commessa }}</span>
+                </td>
+
+                <!-- Cliente e descrizione -->
+                <td class="col-cliente">{{ commessa.cliente or '—' }}</td>
+                <td class="col-descr">
+                    <span class="testo-troncato">{{ commessa.descrizione or '—' }}</span>
+                </td>
+
+                <!-- Data consegna -->
+                <td class="col-data">
+                    {% if commessa.data_tassativa %}
+                    <span class="data {% if commessa.stato_globale == 'ROSSO' %}data-scaduta{% endif %}">
+                        {{ commessa.data_tassativa.strftime('%d/%m/%y') }}
+                    </span>
+                    {% else %}
+                    <span class="data-mancante" title="Data consegna non inserita">!</span>
+                    {% endif %}
+                </td>
+
+                <!-- Priorità reparto -->
+                <td class="col-priorita-rep">
+                    {% if commessa.priorita_gr and commessa.priorita_gr > 0 %}
+                    <span class="badge-priorita-rep">{{ commessa.priorita_gr }}</span>
+                    {% else %}
+                    <span class="testo-vuoto">—</span>
+                    {% endif %}
+                </td>
+
+                <!-- Lavorazione in corso -->
+                <td class="col-lav-corso">
+                    {% set stato = commessa.stato_gr %}
+                    {% if stato and stato not in ['In attesa file', 'In attesa', 'N/A'] %}
+                    <span class="lav-attiva">{{ stato }}</span>
+                    {% elif stato %}
+                    <span class="lav-attesa">{{ stato }}</span>
+                    {% else %}
+                    <span class="testo-vuoto">—</span>
+                    {% endif %}
+                </td>
+
+                <!-- Lavorazione successiva -->
+                <td class="col-lav-succ">
+                    {% if commessa.stato_gr in ['Completato', 'Pronto'] %}
+                        {% if commessa.stato_st not in ['Completato', 'N/A'] %}
+                        <span class="lav-succ">{{ commessa.stato_st }}</span>
+                        {% elif commessa.stato_le not in ['Completato', 'N/A'] %}
+                        <span class="lav-succ">{{ commessa.stato_le }}</span>
+                        {% else %}
+                        <span class="lav-succ">{{ commessa.stato_lg }}</span>
+                        {% endif %}
+                    {% else %}
+                    <span class="testo-vuoto">—</span>
+                    {% endif %}
+                </td>
+
+                <!-- Note -->
+                <td class="col-note">
+                    <span class="testo-troncato">{{ commessa.note_rep_gr or '—' }}</span>
+                </td>
+
+                <!-- Apri dettaglio -->
+                <td class="col-azioni">
+                    <a href="{{ url_for('main.dettaglio_commessa', commessa_id=commessa.id_commessa) }}"
+                       class="btn-dettaglio">Apri</a>
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% else %}
+<div class="tabella-vuota">
+    <p>Nessuna commessa in lavorazione.</p>
+</div>
+{% endif %}
+
+{% endblock %}

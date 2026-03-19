@@ -1279,3 +1279,37 @@ a:visited { color: inherit; }
 .tabella-contenitore {
     overflow-x: auto;
 }
+
+/* ── Dashboard reparti ── */
+.badge-priorita-rep {
+    background-color: rgba(46, 95, 138, 0.3);
+    border-radius: 50%;
+    color: var(--testo-primario);
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    width: 24px;
+}
+
+/* Lavorazione attiva — colorata, il reparto può lavorarci */
+.lav-attiva {
+    color: var(--testo-primario);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Lavorazione in attesa — grigia, dipende da altro reparto */
+.lav-attesa {
+    color: var(--testo-secondario);
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+/* Lavorazione successiva */
+.lav-succ {
+    color: var(--testo-secondario);
+    font-size: 12px;
+}

@@ -17,9 +17,8 @@
         </div>
 
         <div class="navbar-centro">
-            <a href="{{ url_for('main.dashboard') }}"
-               class="navbar-link {% if request.endpoint == 'main.dashboard' %}attivo{% endif %}">
-                Dashboard
+            <a href="{{ url_for('main.dashboard') }}" 
+                class="navbar-link {% if request.endpoint in ['main.dashboard', 'main.dashboard_grafica'] %}attivo{% endif %}">Dashboard
             </a>
 
             {% set avanzato = session.get('livello') in ['avanzato', 'amministratore'] or session.get('is_admin') %}

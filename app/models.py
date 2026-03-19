@@ -115,6 +115,18 @@ class Commessa(db.Model):
     coinvolto_le = db.Column(db.Boolean, default=False)
     coinvolto_ex = db.Column(db.Boolean, default=False)
     coinvolto_lg = db.Column(db.Boolean, default=False)
+
+    # ---------------------------------------------------------
+    # PRIORITÀ PER REPARTO
+    # Numero progressivo che indica l'ordine di lavorazione.
+    # 0 = non assegnata, 1 = prima, 2 = seconda, ecc.
+    # Assegnata da Commerciale e/o Tecnico.
+    # Indipendente dalla priorità del Commerciale (ASAP/Urgente/Standard)
+    # ---------------------------------------------------------
+    priorita_gr = db.Column(db.Integer, default=0)
+    priorita_st = db.Column(db.Integer, default=0)
+    priorita_le = db.Column(db.Integer, default=0)
+    priorita_lg = db.Column(db.Integer, default=0)
     
     override_da     = db.Column(db.String(100))
     override_data   = db.Column(db.DateTime)
