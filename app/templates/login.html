@@ -2,7 +2,6 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WinP - Accesso</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/stile.css') }}">
 </head>
@@ -15,18 +14,22 @@
         {% if errore %}
         <div class="login-errore">{{ errore }}</div>
         {% endif %}
-        <form class="login-form" action="" method="POST">
+        <form action="" method="POST">
             <div class="campo-gruppo">
-                <label class="campo-etichetta" for="utente_id">Nome</label>
-                <select class="campo-select" id="utente_id" name="utente_id" required>
-                    <option value="">- Seleziona il tuo nome -</option                                          <option value="">- Selezio <                    <option val{{ utente.nome }} | {{ ute                    <opti                      <option value="">- Seleziona il tuo nome -</option  v>
-                    <op"campo-grup                    <op"campo-grup                    <op"campo-grup             l>
-                               ampo-input"
-                       type="t                       type="t        rd"
-                       name="password"
-                       placeholder="Lascia vuoto per accesso base">
+                <label class="campo-etichetta">Nome</label>
+                <select class="campo-select" name="utente_id" required>
+                    <option value="">- Seleziona il tuo nome -</option>
+                    {% for utente in utenti %}
+                    <option value="{{ utente.id }}">{{ utente.nome }} | {{ utente.reparto }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="campo-gruppo">
+                <label class="campo-etichetta">Password</label>
+                <input class="campo-input" type="text" name="password" placeholder="Lascia vuoto per accesso base">
             </div>
             <button class="btn-accedi" type="submit">Accedi</button>
         </form>
-             body>
+    </div>
+</body>
 </html>
