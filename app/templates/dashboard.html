@@ -54,15 +54,26 @@
         <table class="tabella">
             <thead>
                 <tr>
-                    <th class="col-stato" onclick="ordinaPer('stato')" style="cursor:pointer;">Stato <span class="sort-icon" id="sort-stato"></span></th>
+                    <th class="col-stato">Stato</th>
+                    {% if session.get('reparto') in ['Grafica', 'Produzione', 'Legatoria', 'Logistica'] and session.get('livello') != 'avanzato' %}
+                    <th class="col-id">N. Comm.</th>
+                    <th class="col-cliente">Cliente</th>
+                    <th class="col-descr">Descrizione</th>
+                    <th class="col-data">Consegna</th>
+                    <th class="col-priorita-rep">Priorità</th>
+                    <th class="col-lav-corso">In lavorazione</th>
+                    <th class="col-lav-succ">Successiva</th>
+                    <th class="col-note">Note</th>
+                    {% else %}
                     <th class="col-data">Richiesta</th>
                     <th class="col-cliente" onclick="ordinaPer('cliente')" style="cursor:pointer;">Cliente <span class="sort-icon" id="sort-cliente"></span></th>
                     <th class="col-descr">Descrizione</th>
                     <th class="col-data" onclick="ordinaPer('scadenza')" style="cursor:pointer;">Consegna <span class="sort-icon" id="sort-scadenza"></span></th>
                     <th class="col-priorita" onclick="ordinaPer('priorita')" style="cursor:pointer;">Priorità <span class="sort-icon" id="sort-priorita"></span></th>
                     <th class="col-stato-co">Stato Richiesta</th>
-                    {% if session.get("reparto") in ["Tecnico", "Amministratore"] %}
+                    {% if session.get('reparto') in ['Tecnico', 'Amministratore'] %}
                     <th class="col-preventivo">Preventivo</th>
+                    {% endif %}
                     {% endif %}
                     <th class="col-azioni"></th>
                 </tr>
@@ -83,6 +94,8 @@
                     data-preventivo="{{ commessa.num_preventivo or "" }}"
                     data-commessa="{{ commessa.num_commessa or "" }}"
                     data-note-co="{{ commessa.note_co or "" }}"
+                    data-note-rep="{{ commessa.note_rep_gr or '' }}"
+                    data-priorita-rep="{{ commessa.priorita_gr or '0' }}"
                     data-modificata="{{ commessa.ultima_modifica.strftime("%d/%m/%Y %H:%M") if commessa.ultima_modifica else "" }}"
                     data-modificata-da="{{ commessa.modificata_da or "" }}"
                     data-stato-gr="{{ commessa.stato_gr or "" }}"
@@ -94,33 +107,60 @@
                     <td class="col-stato">
                         <span class="semaforo semaforo-{{ commessa.stato_globale | lower }}"></span>
                     </td>
+                    {% if session.get('reparto') in ['Grafica', 'Produzione', 'Legatoria', 'Logistica'] and session.get('livello') != 'avanzato' %}
+                    <td class="col-id"><span class="mono">{{ commessa.num_commessa or '—' }}</span></td>
+                    <td class="col-cliente">{{ commessa.cliente or '—' }}</td>
+                    <td class="col-descr"><span class="testo-troncato">{{ commessa.descrizione or '—' }}</span></td>
+                    <td class="col-data">
+                        {% if commessa.data_tassativa %}
+                        <span class="data {% if commessa.stato_globale == 'ROSSO' %}data-scaduta{% endif %}">
+                            {{ commessa.data_tassativa.strftime('%d/%m/%y') }}
+                        </span>
+                        {% else %}<span class="data-mancante" title="Data consegna non inserita">!</span>{% endif %}
+                    </td>
+                    <td class="col-priorita-rep">
+                        {% set prio = commessa.priorita_gr if session.get('reparto') == 'Grafica' else commessa.priorita_st if session.get('reparto') == 'Produzione' else commessa.priorita_le if session.get('reparto') == 'Legatoria' else commessa.priorita_lg %}
+                        {% if prio and prio > 0 %}
+                        <span class="badge-priorita-rep">{{ prio }}</span>
+                        {% else %}<span class="testo-vuoto">—</span>{% endif %}
+                    </td>
+                    <td class="col-lav-corso">
+                        {% set stato_rep = commessa.stato_gr if session.get('reparto') == 'Grafica' else commessa.stato_st if session.get('reparto') == 'Produzione' else commessa.stato_le if session.get('reparto') == 'Legatoria' else commessa.stato_lg %}
+                        {% if stato_rep and stato_rep not in ['In attesa file', 'In attesa', 'N/A'] %}
+                        <span class="lav-attiva">{{ stato_rep }}</span>
+                        {% else %}
+                        <span class="lav-attesa">{{ stato_rep or '—' }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="col-lav-succ"><span class="testo-vuoto">—</span></td>
+                    <td class="col-note"><span class="testo-troncato">{{ commessa.note_rep_gr or '—' if session.get('reparto') == 'Grafica' else commessa.note_rep_st or '—' if session.get('reparto') == 'Produzione' else commessa.note_rep_le or '—' if session.get('reparto') == 'Legatoria' else commessa.note_rep_lg or '—' }}</span></td>
+                    {% else %}
                     <td class="col-data">
                         {% if commessa.data_richiesta %}
                         {{ commessa.data_richiesta.strftime('%d/%m/%y') }}
-                        {% else %}
-                        <span class="testo-vuoto">—</span>
-                        {% endif %}
+                        {% else %}<span class="testo-vuoto">—</span>{% endif %}
                     </td>
-                    <td class="col-cliente">{{ commessa.cliente or "—" }}</td>
-                    <td class="col-descr"><span class="testo-troncato">{{ commessa.descrizione or "—" }}</span></td>
+                    <td class="col-cliente">{{ commessa.cliente or '—' }}</td>
+                    <td class="col-descr"><span class="testo-troncato">{{ commessa.descrizione or '—' }}</span></td>
                     <td class="col-data">
                         {% if commessa.data_tassativa %}
-                        <span class="data {% if commessa.stato_globale == "ROSSO" %}data-scaduta{% endif %}">
-                            {{ commessa.data_tassativa.strftime("%d/%m/%y") }}
+                        <span class="data {% if commessa.stato_globale == 'ROSSO' %}data-scaduta{% endif %}">
+                            {{ commessa.data_tassativa.strftime('%d/%m/%y') }}
                         </span>
                         {% else %}<span class="data-mancante" title="Data consegna non inserita">!</span>{% endif %}
                     </td>
                     <td class="col-priorita">
                         {% if commessa.priorita %}
-                        <span class="badge badge-{{ commessa.priorita | lower | replace(" ", "-") }}">{{ commessa.priorita }}</span>
+                        <span class="badge badge-{{ commessa.priorita | lower | replace(' ', '-') }}">{{ commessa.priorita }}</span>
                         {% else %}<span class="testo-vuoto">—</span>{% endif %}
                     </td>
-                    <td class="col-stato-co"><span class="stato-badge">{{ commessa.stato_co or "—" }}</span></td>
-                    {% if session.get("reparto") in ["Tecnico", "Amministratore"] %}
-                    <td class="col-preventivo">{{ commessa.num_preventivo or "—" }}</td>
+                    <td class="col-stato-co"><span class="stato-badge">{{ commessa.stato_co or '—' }}</span></td>
+                    {% if session.get('reparto') in ['Tecnico', 'Amministratore'] %}
+                    <td class="col-preventivo">{{ commessa.num_preventivo or '—' }}</td>
+                    {% endif %}
                     {% endif %}
                     <td class="col-azioni">
-                        <a href="{{ url_for("main.dettaglio_commessa", commessa_id=commessa.id_commessa) }}"
+                        <a href="{{ url_for('main.dettaglio_commessa', commessa_id=commessa.id_commessa) }}"
                            class="btn-dettaglio" onclick="event.stopPropagation()">Apri</a>
                     </td>
                 </tr>
@@ -143,7 +183,7 @@
             <div class="pannello-placeholder-icona">☰</div>
             <p class="pannello-placeholder-testo">Seleziona una riga<br>per vedere il riepilogo</p>
         </div>
-
+   
         <div id="pannello-contenuto" style="display:none;">
 
             <div class="pannello-intestazione">
@@ -162,6 +202,29 @@
             </div>
 
             <div class="pannello-sezione">
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">N Commessa</span>
+                    <span class="pannello-valore mono" style="font-size:13px; font-weight:700; color:var(--testo-primario);" id="riepilogo-commessa"></span>
+                </div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">N Preventivo</span>
+                    <span class="pannello-valore mono" style="color:var(--testo-secondario); font-size:12px;" id="riepilogo-preventivo"></span>
+                </div>
+            </div>
+
+            <div class="pannello-sezione" id="blocco-priorita-reparto" style="display:none;">
+                <div class="pannello-sezione-titolo">Priorità lavorazione</div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Ordine</span>
+                    <span class="pannello-valore" id="riepilogo-priorita-rep"></span>
+                </div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Urgenza</span>
+                    <span class="pannello-valore" id="riepilogo-urgenza-rep"></span>
+                </div>
+            </div>
+
+            <div class="pannello-sezione" id="blocco-priorita-commerciale" style="display:none;">
                 <div class="pannello-riga">
                     <span class="pannello-etichetta">Priorità</span>
                     <span class="badge" id="riepilogo-priorita"></span>
@@ -184,16 +247,24 @@
                 </div>
             </div>
 
+            <div class="pannello-sezione" id="blocco-lavorazione-reparto" style="display:none;">
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">In lavorazione</span>
+                    <span class="pannello-valore" id="riepilogo-lav-corso"></span>
+                </div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Lavorazione successiva</span>
+                    <span class="pannello-valore" id="riepilogo-lav-succ"></span>
+                </div>
+                <div class="pannello-riga">
+                    <span class="pannello-etichetta">Consegna</span>
+                    <span class="pannello-valore" id="riepilogo-scadenza-rep"></span>
+                </div>
+            </div>
+
             <div class="pannello-sezione">
-                <div class="pannello-sezione-titolo">Tecnico</div>
-                <div class="pannello-riga">
-                    <span class="pannello-etichetta">N Preventivo</span>
-                    <span class="pannello-valore mono" id="riepilogo-preventivo"></span>
-                </div>
-                <div class="pannello-riga">
-                    <span class="pannello-etichetta">N Commessa</span>
-                    <span class="pannello-valore mono" id="riepilogo-commessa"></span>
-                </div>
+                <div class="pannello-sezione-titolo" id="riepilogo-note-titolo">Note</div>
+                <p class="pannello-note" id="riepilogo-note"></p>
             </div>
 
             <div class="pannello-sezione">
@@ -216,11 +287,6 @@
                 </div>
             </div>
 
-            <div class="pannello-sezione">
-                <div class="pannello-sezione-titolo">Note commerciale</div>
-                <p class="pannello-note" id="riepilogo-note-co"></p>
-            </div>
-
             <div class="pannello-footer">
                 <div class="pannello-riga">
                     <span class="pannello-etichetta">Ultima modifica</span>
@@ -234,8 +300,8 @@
                     Apri dettaglio completo
                 </a>
             </div>
-
         </div>
+
     </div>
 
 </div>
@@ -335,16 +401,15 @@ function ordinaPer(colonna) {
 
 function apriRiepilogo(riga) {
     var d = riga.dataset;
+    var reparto = '{{ session.get("reparto") }}';
+    var repartiLavorazione = ['Grafica', 'Produzione', 'Legatoria', 'Logistica'];
+    var isReparto = repartiLavorazione.indexOf(reparto) !== -1;
+
     document.getElementById('riepilogo-id').textContent = d.id;
     document.getElementById('riepilogo-cliente').textContent = d.cliente || '—';
     document.getElementById('riepilogo-descrizione').textContent = d.descrizione || '—';
-    document.getElementById('riepilogo-stato-co').textContent = d.statoCo || '—';
-    document.getElementById('riepilogo-in-attesa').textContent = d.inAttesa === '1' ? 'Si' : 'No';
-    document.getElementById('riepilogo-consegna').textContent = d.consegna || '—';
-    document.getElementById('riepilogo-scadenza').textContent = d.scadenzaDisplay || '—';
     document.getElementById('riepilogo-preventivo').textContent = d.preventivo || '—';
     document.getElementById('riepilogo-commessa').textContent = d.commessa || '—';
-    document.getElementById('riepilogo-note-co').textContent = d.noteCo || '—';
     document.getElementById('riepilogo-modificata').textContent = d.modificata || '—';
     document.getElementById('riepilogo-modificata-da').textContent = d.modificataDa || '—';
     document.getElementById('riepilogo-stato-gr').textContent = d.statoGr || '—';
@@ -352,26 +417,75 @@ function apriRiepilogo(riga) {
     document.getElementById('riepilogo-stato-le').textContent = d.statoLe || '—';
     document.getElementById('riepilogo-stato-lg').textContent = d.statoLg || '—';
 
+    // Stato semaforo con nome corretto
     var nomiStato = {'ROSSO': 'Da verificare', 'GIALLO': 'In scadenza', 'VERDE': 'Programmato'};
     var coloriStato = {'ROSSO': '#e05050', 'GIALLO': '#e0c050', 'VERDE': '#50c080'};
     var statoEl = document.getElementById('riepilogo-stato');
     statoEl.textContent = nomiStato[d.stato] || d.stato || '—';
-    statoEl.style.color = coloriStato[d.stato] || '';   
-
-    var prEl = document.getElementById('riepilogo-priorita');
-    prEl.textContent = d.priorita || '—';
-    prEl.className = d.priorita ? 'badge badge-' + d.priorita.toLowerCase() : '';   
-
+    statoEl.style.color = coloriStato[d.stato] || '';
     var sem = document.getElementById('riepilogo-semaforo');
     sem.className = 'semaforo semaforo-' + (d.stato || 'verde').toLowerCase();
 
-    document.getElementById('riepilogo-link-dettaglio').href = '/commessa/' + d.id;
+    if (isReparto) {
+        // Vista reparto lavorazione
+        document.getElementById('blocco-priorita-reparto').style.display = 'block';
+        document.getElementById('blocco-priorita-commerciale').style.display = 'none';
+        document.getElementById('blocco-lavorazione-reparto').style.display = 'block';
+        document.getElementById('riepilogo-note').textContent = d.noteRep || '—';
+        document.getElementById('riepilogo-scadenza-rep').textContent = d.scadenzaDisplay || '—';
+        document.getElementById('riepilogo-lav-corso').textContent = d.statoGr || '—';
+        document.getElementById('riepilogo-lav-succ').textContent = '—';
+        // Priorità reparto
+        var prioRep = d.prioritaRep || '0';
+        document.getElementById('riepilogo-priorita-rep').textContent = prioRep > 0 ? prioRep : '—';
+        // Urgenza basata sulla scadenza
+        var scadenza = d.scadenza;
+        var urgenzaEl = document.getElementById('riepilogo-urgenza-rep');
+        if (scadenza) {
+            var oggi = new Date();
+            var dataScad = new Date(scadenza);
+            var giorni = Math.ceil((dataScad - oggi) / (1000 * 60 * 60 * 24));
+            if (giorni <= 1) {
+                urgenzaEl.textContent = 'Urgente';
+                urgenzaEl.style.color = '#e05050';
+            } else if (giorni <= 2) {
+                urgenzaEl.textContent = 'Prioritario';
+                urgenzaEl.style.color = '#e08c28';
+            } else {
+                urgenzaEl.textContent = 'Standard';
+                urgenzaEl.style.color = '#3cb464';
+            }
+        } else {
+            urgenzaEl.textContent = '—';
+            urgenzaEl.style.color = '';
+        }
+    } else {
+        // Vista Commerciale/Tecnico/Admin
+        document.getElementById('blocco-priorita-reparto').style.display = 'none';
+        document.getElementById('blocco-priorita-commerciale').style.display = 'block';
+        document.getElementById('blocco-lavorazione-reparto').style.display = 'none';
+        document.getElementById('riepilogo-note').textContent = d.noteCo || '—';
+        document.getElementById('riepilogo-stato-co').textContent = d.statoCo || '—';
+        document.getElementById('riepilogo-in-attesa').textContent = d.inAttesa === '1' ? 'Si' : 'No';
+        var consEl = document.getElementById('riepilogo-consegna');
+        if (d.consegna) {
+            consEl.textContent = d.consegna;
+            consEl.className = 'pannello-valore';
+        } else {
+            consEl.textContent = 'Non inserita';
+            consEl.className = 'pannello-valore data-mancante';
+        }
+        document.getElementById('riepilogo-scadenza').textContent = d.scadenzaDisplay || '—';
+        var prEl = document.getElementById('riepilogo-priorita');
+        prEl.textContent = d.priorita || '—';
+        prEl.className = d.priorita ? 'badge badge-' + d.priorita.toLowerCase() : '';
+    }
 
+    document.getElementById('riepilogo-link-dettaglio').href = '/commessa/' + d.id;
     document.querySelectorAll('.riga-commessa').forEach(function(r) {
         r.classList.remove('riga-selezionata');
     });
     riga.classList.add('riga-selezionata');
-
     document.getElementById('pannello-placeholder').style.display = 'none';
     document.getElementById('pannello-contenuto').style.display = 'block';
 }

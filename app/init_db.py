@@ -48,6 +48,17 @@ def inizializza_db():
             'admin',
             'Password per accesso utente avanzato — cambiarla subito'
         ),
+        (
+            'giorni_urgente',
+            '1',
+            'Giorni alla scadenza per priorità URGENTE (rosso)'
+        ),
+        (
+            'giorni_prioritario',
+            '2',
+            'Giorni alla scadenza per priorità PRIORITARIO (arancione)'
+        ),
+
 
     ]
 
